@@ -1,4 +1,4 @@
-**[Jupyterhub Instances](#jupyterhub-instances)** |
+**[Jupyterhub Instances](#jupyterhub-instance)** |
 **[Docker Containers](#jupyter-notebook-docker-containers)** |
 **[Notebook Worker Instances](#jupyter-notebook-worker-instances)** |
 **[NFS Instances](#nfs-instance)**
