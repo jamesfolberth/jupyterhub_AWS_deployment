@@ -1,14 +1,30 @@
 #!/bin/env bash
 
+CWD=`pwd`
 if [ -z "$PYTHONPATH" ]; then
-   export PYTHONPATH=/home/ec2-user/jupyterhub/python/
+   export PYTHONPATH=$CWD/python/
 else
-   export PYTHONPATH=$PYTHONPATH:/home/ec2-user/jupyterhub/python/
+   export PYTHONPATH=$PYTHONPATH:$CWD/python/
 fi
 
-export EC2_PUBLIC_DNS=ec2-52-42-235-206.us-west-2.compute.amazonaws.com
-export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_DNS}:8443/hub/oauth_callback
+# Check existence of hub env vars file
+HUB_ENV_FILE=/srv/jupyterhub/env
+if [ -e $HUB_ENV_FILE ]; then
+   source /srv/jupyterhub/env
+else
+   echo "Error: Jupyterhub environment variables file not found in $HUB_ENV_FILE" 1>&2
+   exit 1
+fi
 
-source /srv/jupyterhub/secret.env
+# Check that we got the vars we want
+vars="EC2_PUBLIC_DNS OAUTH_CLIENT_ID OAUTH_CLIENT_SECRET"
+for var in $vars; do
+   if [ -z ${!var} ]; then # "indirect parameter expansion"
+      echo "Error: Variable $var is not set" 1>&2
+      exit 1
+   fi
+done
+
+export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_DNS}:8443/hub/oauth_callback
 
 jupyterhub -f config.py
