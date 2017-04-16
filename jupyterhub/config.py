@@ -34,12 +34,13 @@ c.Authenticator.create_system_users = True
 # Default adduser flags are for FreeBSD (works on CentOS 5, Debian, Ubuntu)
 # Doesn't work for us.
 # https://github.com/jupyterhub/jupyterhub/issues/696
-c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME']
+c.Authenticator.add_user_cmd =  ['adduser', '--home', '/home/USERNAME']
+#c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME'] # not yet
 
 c.Authenticator.whitelist = whitelist = set()
 c.Authenticator.admin_users = admin = set()
 
-with open(pjoint(runtime_dir, 'userlist') as f:
+with open(pjoin(runtime_dir, 'userlist')) as f:
     for line in f:
         if not line:
             continue
