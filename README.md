@@ -10,11 +10,11 @@ We followed most of the instructions from [Deploying Jupyterhub on AWS](https://
 We deviate in a number of ways, however, since we have not registered a domain name.
 
 1. Starting the hub VM
-  * We developed and tested the config files on a t2.micro instance.
-   For deployment, we'll probably want a larger instance for the hub, especially if it will also run a few notebook containers.
-   We used a standard 64-bit Amazon Linux AMI.
-   It has a reasonable number of packages in the `yum` repo, and most of the rest of the software we use can be installed with `pip`.
-   We set the following inbound rules:
+   * We developed and tested the config files on a t2.micro instance.
+     For deployment, we'll probably want a larger instance for the hub, especially if it will also run a few notebook containers.
+     We used a standard 64-bit Amazon Linux AMI.
+     It has a reasonable number of packages in the `yum` repo, and most of the rest of the software we use can be installed with `pip`.
+     We set the following inbound rules:
 
     |Ports |	Protocol	| Source |	
     |------|----------|--------|
@@ -24,15 +24,15 @@ We deviate in a number of ways, however, since we have not registered a domain n
     |8443	| tcp	| 0.0.0.0/0, ::/0 |	
 
 2. Initial Setup 
-  * To connect to the new instance, you'll need your SSH key (if it's your first time, you'll need AWS to generate one for you).
+   * To connect to the new instance, you'll need your SSH key (if it's your first time, you'll need AWS to generate one for you).
    Once you've downloaded your AWS SSH key and started up your instance, you can connect to it with `ssh -i ~/.ssh/aws_key.pem ec2-user@{PUBLIC_IPv4}`.
    The standard user is `ec2-user`, which has `sudo` privileges; once inside, you can make new users if you prefer.
-  * Make a directory for Jupyterhub server files (e.g., SSL certs, user list)
+   * Make a directory for Jupyterhub server files (e.g., SSL certs, user list)
     ```
     sudo mkdir /srv/jupyterhub
     sudo chown -R ec2-user:ec2-user /srv/jupyterhub/
     ```
-  * Add `ec2-user` to the Docker group, so we don't have to `sudo` every time we want to run a Docker container.
+   * Add `ec2-user` to the Docker group, so we don't have to `sudo` every time we want to run a Docker container.
     This is useful for testing things out.
     ```
     sudo usermod -aG docker ec2-user
