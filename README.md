@@ -91,12 +91,6 @@ We deviate in a few ways, however, since we have not registered a domain name.
      sudo pip-3.4 install oauthenticator dockerspawner
      ```
 
-   * We start the hub with `sudo`, so make a few symlinks.
-     ```bash
-     sudo ln -s `which jupyterhub` /usr/sbin/jupyterhub
-     ###sudo ln -s `which jupyterhub-singleuser` /usr/sbin/jupyterhub-singleuser
-     ```
-
 3. Generate a self-signed SSL certificate.
    * We don't have a domain name for our project, so we'll use a self-signed SSL certificate for now.
      Also, a self-signed cert is quite okay for testing/development.
@@ -122,10 +116,8 @@ We deviate in a few ways, however, since we have not registered a domain name.
          https://ec2-{IPv4ADDR}.us-west-2.compute.amazonaws.com:8443/hub/oauth_callback
      ```
 
-   * Once you've created the project, copy the client ID and secret to the file `/srv/jupyterhub/env`.  Also add the EC2 public domain name, which we'll use to set the appropriate callback URL for the authenticator.
+   * Once you've created the project, copy the client ID and secret to the file `/srv/jupyterhub/env`.
     ```bash
-    export EC2_PUBLIC_DNS=ec2-{IPv4ADDR}.us-west-2.compute.amazonaws.com
-
     # Google OAuth 2.0
     export OAUTH_CLIENT_ID=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.apps.googleusercontent.com
     export OAUTH_CLIENT_SECRET=BBBBBBBBBBBBBBBBBBBBB
@@ -146,10 +138,16 @@ We deviate in a few ways, however, since we have not registered a domain name.
    cd && mkdir repos && cd repos
    git clone https://github.com/jamesfolberth/NGC_STEM_camp_AWS.git
    cd NGC_STEM_camp_AWS/jupyterhub
-   ###cp -r NGC_STEM_camp_AWS ~/deploy
    ```
 
-   * We haven't yet built Docker containers for the notebook instances, but we can still test out the hub a bit.  Start up the hub with `sudo ./start.sh`.  Point your browser to `https://{PUBLIC_IPv4ADDR}:8443`.  You should see a warning that the connection is untrusted (because we're using a self-signed SSL cert), but you can proceed.  You should see a Google authentication page, which, once authenticated, will pass you to the main Jupyterhub page, where you can start a server, view the control panel, etc.
+   * Optionally NAT port 443 to 8443 to be served by the hub.  We may put nginx on the front end to route to both the hub and a (simple) webserver.
+     ```bash
+     sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to 8443
+     ```
+
+   * We haven't yet built Docker containers for the notebook instances, but we can still test out the hub a bit.  Start up the hub with `./start.sh`, which will set up a few environment variables and then run `sudo jupyterhub`.  The script uses `ec2-metadata` to get the running instance's public hostname.
+
+     Point your browser to `https://{PUBLIC_IPv4ADDR}:8443`.  You should see a warning that the connection is untrusted (because we're using a self-signed SSL cert), but you can proceed.  You should see a Google authentication page, which, once authenticated, will pass you to the main Jupyterhub page, where you can start a server, view the control panel, etc.
 
      Since we haven't built the notebook server Docker containers, clicking "Start My Server" should error out (500).  If we didn't authenticate properly (perhaps the email in `/srv/jupyterhub/userlist` is misspelled), you'll see an error 403.
 
