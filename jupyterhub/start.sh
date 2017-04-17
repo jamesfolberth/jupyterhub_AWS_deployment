@@ -17,7 +17,7 @@ else
 fi
 
 # Check that we got the vars we want
-vars="EC2_PUBLIC_DNS OAUTH_CLIENT_ID OAUTH_CLIENT_SECRET"
+vars="OAUTH_CLIENT_ID OAUTH_CLIENT_SECRET"
 for var in $vars; do
    if [ -z ${!var} ]; then # "indirect parameter expansion"
       echo "Error: Variable $var is not set" 1>&2
@@ -25,6 +25,16 @@ for var in $vars; do
    fi
 done
 
-export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_DNS}:8443/hub/oauth_callback
+# Get the public hostname
+export EC2_PUBLIC_HOSTNAME=`ec2-metadata --public-hostname | sed -ne 's/public-hostname: //p'`
+if [ -z $EC2_PUBLIC_HOSTNAME ]; then
+   echo "Error: Failed to get EC2 public hostname from `ec2-metadata`"
+   exit 1
+else
+   echo "Using EC2_PUBLIC_HOSTNAME=$EC2_PUBLIC_HOSTNAME"
+fi
+export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_HOSTNAME}:8443/hub/oauth_callback
 
-jupyterhub -f config.py
+# -E preserves environment variables (except not PATH, PYTHONPATH, etc.)
+jhub_bin=`which jupyterhub`
+sudo -E PYTHONPATH=$PYTHONPATH $jhub_bin -f config.py
