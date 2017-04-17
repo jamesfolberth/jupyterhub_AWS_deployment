@@ -59,7 +59,7 @@ with open(pjoin(runtime_dir, 'userlist')) as f:
 #c.Spawner.args = ['--NotebookApp.default_url=/notebooks/lab01.ipynb']
 
 # Spawn user containers from this image
-c.DockerSpawner.container_image = 'jupyter_node'
+c.DockerSpawner.container_image = 'data8-notebook'
 #c.DockerSpawner.container_image = 'systemuser'
 
 # Have the Spawner override the Docker run command
@@ -86,7 +86,8 @@ from jupyter_client.localinterfaces import public_ips
 c.JupyterHub.hub_ip = public_ips()[0]
 
 
-c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
+#c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}' # not yet
+c.SystemUserSpawner.host_homedir_format_string = '/home/{username}'
 
 
 #TODO data persistence and NFS
