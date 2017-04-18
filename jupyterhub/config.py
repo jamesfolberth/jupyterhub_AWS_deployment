@@ -57,18 +57,22 @@ with open(pjoin(runtime_dir, 'userlist')) as f:
 # Try using SwarmSpawner from https://github.com/cassinyio/SwarmSpawner.git
 c.JupyterHub.spawner_class = 'cassinyspawner.SwarmSpawner'
 
-c.JupyterHub.ip = '0.0.0.0'
-c.JupyterHub.hub_ip = '0.0.0.0'
-c.JupyterHub.hub_ip = '172.31.47.221'
+#c.JupyterHub.ip = '0.0.0.0'
+#c.JupyterHub.hub_ip = '0.0.0.0'
+#c.JupyterHub.hub_ip = '172.31.47.221'
+# The docker instances need access to the Hub, so the default loopback port doesn't work:
+from jupyter_client.localinterfaces import public_ips
+c.JupyterHub.hub_ip = public_ips()[0]
 
-c.JupyterHub.cleanup_servers = False
+
+c.JupyterHub.cleanup_servers = False #TODO temp
 
 # First pulls can be really slow, so let's give it a big timeout
 c.SwarmSpawner.start_timeout = 60 * 5
 
 c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub'
 
-c.SwarmSpawner.networks = ["skynet"]
+c.SwarmSpawner.networks = ["hubnet"]
 
 #notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
 notebook_dir = '/home/{username}'
@@ -80,9 +84,12 @@ mounts = [{'type' : 'volume',
 
 c.SwarmSpawner.container_spec = {
     # The command to run inside the service
-    'args' : '/usr/local/bin/start-singleuser.sh', #(string or list)
-    'Image' : 'data8-notebook',
-    'mounts' : mounts
+    #'args' : '/usr/local/bin/start-singleuser.sh', #(string or list)
+    'args': ['sh', '/usr/local/bin/start-singleuser.sh'] ,
+    #'Image' : 'data8-notebook',
+    'Image' : 'jupyter/minimal-notebook',
+    #'mounts' : mounts
+    'mounts' : []
     }
 
 #c.SwarmSpawner.resource_spec = {

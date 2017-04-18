@@ -37,4 +37,4 @@ export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_HOSTNAME}:8443/hub/oauth_callback
 
 # -E preserves environment variables (except not PATH, PYTHONPATH, etc.)
 jhub_bin=`which jupyterhub`
-sudo -E PYTHONPATH=$PYTHONPATH $jhub_bin -f config.py
+sudo -E PYTHONPATH=$PYTHONPATH $jhub_bin -f config.py --debug
