@@ -30,9 +30,12 @@ export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_HOSTNAME}:8443/hub/oauth_callback
 
 
 #TODO service --name jupyterhub
+# https://jpetazzo.github.io/2015/09/03/do-not-use-docker-in-docker-for-ci/
+#docker run -d \
 docker run -it --rm \
    -e OAUTH_CLIENT_ID=$OAUTH_CLIENT_ID \
    -e OAUTH_CLIENT_SECRET=$OAUTH_CLIENT_SECRET \
    -e OAUTH_CALLBACK_URL=$OAUTH_CALLBACK_URL \
    -p 8443:8443 \
+   -v /var/run/docker.sock:/var/run/docker.sock \
    --name jupyterhub jhubdocker
