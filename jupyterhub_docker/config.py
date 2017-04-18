@@ -69,7 +69,7 @@ c.JupyterHub.cleanup_servers = False #TODO temp
 # First pulls can be really slow, so let's give it a big timeout
 c.SwarmSpawner.start_timeout = 60 * 5
 
-c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub'
+c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub_service'
 
 c.SwarmSpawner.networks = ["hubnet"]
 

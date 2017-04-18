@@ -54,5 +54,5 @@ RUN chmod 700 /srv/jupyterhub && chmod 600 /srv/jupyterhub/ssl/* && \
 ADD ./run_hub.sh /srv/jupyterhub/run_hub.sh
 ADD ./config.py /srv/jupyterhub/config.py
 
-CMD ["/bin/bash"]
-#CMD ["/bin/bash", "/srv/jupyterhub/run_hub.sh"]
+#CMD ["/bin/bash"]
+CMD ["/bin/bash", "/srv/jupyterhub/run_hub.sh"]
