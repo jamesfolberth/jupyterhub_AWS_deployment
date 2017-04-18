@@ -45,5 +45,5 @@ docker service create \
    -e OAUTH_CALLBACK_URL=$OAUTH_CALLBACK_URL \
    -p 8443:8443 \
    --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock \
-   --network hubnet --network host \
+   --network hubnet \
    --name "jupyterhub_service" jhubdocker

@@ -55,42 +55,43 @@ with open(pjoin(runtime_dir, 'userlist')) as f:
 
 
 # Try using SwarmSpawner from https://github.com/cassinyio/SwarmSpawner.git
-c.JupyterHub.spawner_class = 'cassinyspawner.SwarmSpawner'
-
-#c.JupyterHub.ip = '0.0.0.0'
-#c.JupyterHub.hub_ip = '0.0.0.0'
-#c.JupyterHub.hub_ip = '172.31.47.221'
-# The docker instances need access to the Hub, so the default loopback port doesn't work:
-from jupyter_client.localinterfaces import public_ips
-c.JupyterHub.hub_ip = public_ips()[0]
-
-
-c.JupyterHub.cleanup_servers = False #TODO temp
-
-# First pulls can be really slow, so let's give it a big timeout
-c.SwarmSpawner.start_timeout = 60 * 5
-
-c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub'
-
-c.SwarmSpawner.networks = ["hubnet"]
-
-#notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
-notebook_dir = '/home/{username}'
-c.SwarmSpawner.notebook_dir = notebook_dir
-
-mounts = [{'type' : 'volume',
-           'source' : 'jupyterhub-user-{username}',
-           'target' : notebook_dir}]
-
-c.SwarmSpawner.container_spec = {
-    # The command to run inside the service
-    #'args' : '/usr/local/bin/start-singleuser.sh', #(string or list)
-    'args': ['sh', '/usr/local/bin/start-singleuser.sh'] ,
-    #'Image' : 'data8-notebook',
-    'Image' : 'jupyter/minimal-notebook',
-    #'mounts' : mounts
-    'mounts' : []
-    }
+#c.JupyterHub.spawner_class = 'cassinyspawner.SwarmSpawner'
+#
+##c.JupyterHub.ip = '0.0.0.0'
+##c.JupyterHub.hub_ip = '0.0.0.0'
+##c.JupyterHub.hub_ip = '172.31.47.221'
+## The docker instances need access to the Hub, so the default loopback port doesn't work:
+#from jupyter_client.localinterfaces import public_ips
+#c.JupyterHub.hub_ip = public_ips()[0]
+#
+#
+#c.JupyterHub.cleanup_servers = False #TODO temp
+#
+## First pulls can be really slow, so let's give it a big timeout
+##c.SwarmSpawner.start_timeout = 60 * 5
+#c.SwarmSpawner.start_timeout = 15
+#
+#c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub_service'
+#
+#c.SwarmSpawner.networks = ["hubnet"]
+#
+##notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
+#notebook_dir = '/home/{username}'
+##c.SwarmSpawner.notebook_dir = notebook_dir #TODO
+#
+#mounts = [{'type' : 'volume',
+#           'source' : 'jupyterhub-user-{username}',
+#           'target' : notebook_dir}]
+#
+#c.SwarmSpawner.container_spec = {
+#    # The command to run inside the service
+#    #'args' : '/usr/local/bin/start-singleuser.sh', #(string or list)
+#    'args': ['sh', '/usr/local/bin/start-singleuser.sh'] ,
+#    #'Image' : 'data8-notebook',
+#    'Image' : 'jupyter/minimal-notebook',
+#    #'mounts' : mounts
+#    'mounts' : []
+#    }
 
 #c.SwarmSpawner.resource_spec = {
 #                'cpu_limit' : 1000, # (int) – CPU limit in units of 10^9 CPU shares.
@@ -103,32 +104,32 @@ c.SwarmSpawner.container_spec = {
 
 
 
-## start single-user notebook servers in ~/assignments,
-## with ~/assignments/Welcome.ipynb as the default landing page
-## this config could also be put in
-## /etc/jupyter/jupyter_notebook_config.py
-##c.Spawner.notebook_dir = '~/notebooks'
-##c.Spawner.args = ['--NotebookApp.default_url=/notebooks/lab01.ipynb']
-#
-## Spawn user containers from this image
-#c.DockerSpawner.container_image = 'data8-notebook'
-##c.DockerSpawner.container_image = 'systemuser'
-#
-## Have the Spawner override the Docker run command
-##c.DockerSpawner.extra_create_kwargs.update({
-##	'command': '/usr/local/bin/start-singleuser.sh'
-##	#'command': '/usr/local/bin/start-systemuser.sh'
-##})
-#
-##TODO get rid of user jovyan; see systemuserspawner
-##notebook_dir = os.environ.get('DOCKER_NOTEBOOK_DIR') or '/home/jovyan/work'
-##notebook_dir = '/home/{username}'
-##c.DockerSpawner.notebook_dir = notebook_dir
-##c.DockerSpawner.notebook_dir = '/'
-##c.DockerSpawner.notebook_dir = notebook_dir
-##c.DockerSpawner.default_url = '/home/{username}' #TODO doesn't work
-#
-#
+# start single-user notebook servers in ~/assignments,
+# with ~/assignments/Welcome.ipynb as the default landing page
+# this config could also be put in
+# /etc/jupyter/jupyter_notebook_config.py
+#c.Spawner.notebook_dir = '~/notebooks'
+#c.Spawner.args = ['--NotebookApp.default_url=/notebooks/lab01.ipynb']
+
+# Spawn user containers from this image
+c.DockerSpawner.container_image = 'data8-notebook'
+#c.DockerSpawner.container_image = 'systemuser'
+
+# Have the Spawner override the Docker run command
+#c.DockerSpawner.extra_create_kwargs.update({
+#	'command': '/usr/local/bin/start-singleuser.sh'
+#	#'command': '/usr/local/bin/start-systemuser.sh'
+#})
+
+#TODO get rid of user jovyan; see systemuserspawner
+#notebook_dir = os.environ.get('DOCKER_NOTEBOOK_DIR') or '/home/jovyan/work'
+#notebook_dir = '/home/{username}'
+#c.DockerSpawner.notebook_dir = notebook_dir
+c.DockerSpawner.notebook_dir = '/'
+#c.DockerSpawner.notebook_dir = notebook_dir
+#c.DockerSpawner.default_url = '/home/{username}' #TODO doesn't work
+
+
 ##TODO we eventually want systemuserspawner, I think
 ##c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 #c.JupyterHub.spawner_class = 'dockerspawner.SystemUserSpawner'
@@ -175,23 +176,73 @@ c.SwarmSpawner.container_spec = {
 ## it.  Most jupyter/docker-stacks *-notebook images run the Notebook server as
 ## user `jovyan`, and set the notebook directory to `/home/jovyan/work`.
 ## We follow the same convention.
-##notebook_dir = os.environ.get('DOCKER_NOTEBOOK_DIR') or '/home/jovyan/work'
-##c.DockerSpawner.notebook_dir = notebook_dir
+#notebook_dir = os.environ.get('DOCKER_NOTEBOOK_DIR') or '/home/jovyan/work'
+#c.DockerSpawner.notebook_dir = notebook_dir
 #
 ## Mount the real user's Docker volume on the host to the notebook user's
 ## notebook directory in the container
-##c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
+#c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
 #
 ## Mount the real user's Docker volume on the host to the notebook user's
 ## notebook directory in the container
-##c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
-##c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
+#c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
+#c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
 #
 #
 ## Remove containers once they are stopped
-#c.Spawner.remove_containers = True
+c.Spawner.remove_containers = True
 #
 ## For debugging arguments passed to spawned containers
-#c.Spawner.debug = True
+c.Spawner.debug = True
+
+
+
+
+
+
+
+
+
+
+
+
+# Zonca + legacy swarm
+# Point DockerSpawner to Swarm instead of the local DockerEngine
+os.environ["DOCKER_HOST"] = ":4000"
+                
+# We use NGINX for SSL
+c.JupyterHub.confirm_no_ssl = True
+        
+# The docker instances need access to the Hub, so the default loopback port doesn't work:
+from IPython.utils.localinterfaces import public_ips
+c.JupyterHub.hub_ip = public_ips()[0]
+print(c.JupyterHub.hub_ip)
+#c.JupyterHub.hub_ip = '0.0.0.0'
+#c.JupyterHub.hub_port = 8080
+
+c.JupyterHub.spawner_class = 'dockerspawner.SystemUserSpawner' #TODO
+#c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
+# see https://hub.docker.com/r/zonca/jupyterhub-datascience-systemuser/builds/
+c.DockerSpawner.container_image = 'data8-notebook'
+#c.DockerSpawner.container_image = 'jupyter/minimal-notebook'
+c.DockerSpawner.remove_containers = True
+
+# The docker instances need access to the Hub, so the default loopback port
+# doesn't work. We need to tell the hub to listen on 0.0.0.0 because it's in a
+# container, and we'll expose the port properly when the container is run. Then,
+# we explicitly tell the spawned containers to connect to the proper IP address.
+c.JupyterHub.proxy_api_ip = '0.0.0.0'
+c.DockerSpawner.container_ip = '0.0.0.0'
+c.DockerSpawner.use_internal_ip = False
+
+c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip
+#c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip+':'+str(c.JupyterHub.hub_port)
+
+
+# Mount the real user's Docker volume on the host to the notebook user's
+# notebook directory in the container
+#c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
+#c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
+
 
 

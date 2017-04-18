@@ -9,7 +9,7 @@ RUN /opt/conda/bin/pip install \
     oauthenticator \
     dockerspawner \
     jupyter \
-    docker 
+    docker==2.0.1
 
 # Install docker on the jupyterhub container
 #RUN wget https://get.docker.com -q -O /tmp/getdocker && \
@@ -31,7 +31,7 @@ RUN cd ~ && mkdir repos && cd repos && \
     python setup.py install
 
 #TODO this is a hack.  Looks like docker-py and docker have a name clash
-RUN /usr/bin/yes | pip uninstall docker docker-py docker-pycreds && pip install docker
+RUN /usr/bin/yes | pip uninstall docker docker-py docker-pycreds && pip install docker==2.0.1
 
 # Copy SSL cert and userlist
 RUN mkdir -p /srv/jupyterhub/ssl

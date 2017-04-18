@@ -56,6 +56,7 @@ with open(pjoin(runtime_dir, 'userlist')) as f:
 # Try using SwarmSpawner from https://github.com/cassinyio/SwarmSpawner.git
 c.JupyterHub.spawner_class = 'cassinyspawner.SwarmSpawner'
 
+
 c.JupyterHub.ip = '0.0.0.0'
 c.JupyterHub.hub_ip = '0.0.0.0'
 #c.JupyterHub.hub_ip = '172.31.47.221'
@@ -64,10 +65,11 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 #c.JupyterHub.hub_ip = public_ips()[0]
 
 
-c.JupyterHub.cleanup_servers = False #TODO temp
+c.JupyterHub.cleanup_servers = True #TODO temp
 
 # First pulls can be really slow, so let's give it a big timeout
-c.SwarmSpawner.start_timeout = 60 * 5
+#c.SwarmSpawner.start_timeout = 60 * 5
+c.SwarmSpawner.start_timeout = 15
 
 c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub_service'
 
@@ -75,7 +77,7 @@ c.SwarmSpawner.networks = ["hubnet"]
 
 #notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
 notebook_dir = '/home/{username}'
-c.SwarmSpawner.notebook_dir = notebook_dir
+#c.SwarmSpawner.notebook_dir = notebook_dir #TODO 
 
 mounts = [{'type' : 'volume',
            'source' : 'jupyterhub-user-{username}',
@@ -83,13 +85,15 @@ mounts = [{'type' : 'volume',
 
 c.SwarmSpawner.container_spec = {
     # The command to run inside the service
-    #'args' : '/usr/local/bin/start-singleuser.sh', #(string or list)
-    'args': ['sh', '/usr/local/bin/start-singleuser.sh'] ,
+    'args' : '/usr/local/bin/start-singleuser.sh', #(string or list)
+    #'args': ['sh', '/usr/local/bin/start-singleuser.sh'] ,
     #'Image' : 'data8-notebook',
     'Image' : 'jupyter/minimal-notebook',
-    #'mounts' : mounts
+    #'mounts' : mounts # TODO unmarshalling error
     'mounts' : []
     }
+
+c.SwarmSpawner.debug = True
 
 #c.SwarmSpawner.resource_spec = {
 #                'cpu_limit' : 1000, # (int) – CPU limit in units of 10^9 CPU shares.
@@ -139,13 +143,14 @@ c.SwarmSpawner.container_spec = {
 #c.JupyterHub.hub_ip = public_ips()[0]
 #
 #
-##c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}' # not yet
+#c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}' # not yet
 ##c.SystemUserSpawner.host_homedir_format_string = '/home/{username}'
 #
 #
 ## Use `docker port` to determine where to start container
 ##c.SystemUserSpawner.container_ip = '172.31.47.221:2377'
 #c.SystemUserSpawner.container_ip = '0.0.0.0'
+#c.DockerSpawner.network_name = 'hubnet'
 #
 #
 ## From https://gist.github.com/zonca/83d222df8d0b9eaebd02b83faa676753
