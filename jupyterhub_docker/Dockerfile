@@ -11,6 +11,26 @@ RUN /opt/conda/bin/pip install \
     jupyter \
     docker==2.0.1
 
+# Copy SSL cert and userlist
+RUN mkdir -p /srv/jupyterhub/ssl
+ADD ./secret/ssl /srv/jupyterhub/ssl
+ADD ./secret/userlist /srv/jupyterhub/userlist
+
+# We use port 8443 for the hub
+EXPOSE 8443
+
+# So we can actually talk to the swarm nodes!
+EXPOSE 8000-9000
+EXPOSE 32000-33000
+
+# Copy our OAuthenticator hack
+ADD ./python /srv/jupyterhub/python
+
+# Set permissions for /srv/... stuff
+RUN chmod 700 /srv/jupyterhub && chmod 600 /srv/jupyterhub/ssl/* && \
+    chmod 600 /srv/jupyterhub/userlist
+
+
 # Install docker on the jupyterhub container
 #RUN wget https://get.docker.com -q -O /tmp/getdocker && \
 #    chmod +x /tmp/getdocker && \
@@ -25,28 +45,18 @@ RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/so
     apt-get -y update && apt-get -y install docker.io
 
 # Clone and install SwarmSpawner
-RUN cd ~ && mkdir repos && cd repos && \
-    git clone https://github.com/cassinyio/SwarmSpawner.git && \
-    cd SwarmSpawner \ #&& pip install -r requirements.txt && \
-    python setup.py install
+#RUN cd ~ && mkdir repos && cd repos && \
+#    git clone https://github.com/jamesfolberth/SwarmSpawner.git && \
+#    #cd SwarmSpawner &&\ #&& pip install -r requirements.txt && \
+#    #cd SwarmSpawner &&\ #&& pip install -r requirements.txt && \
+#    cd SwarmSpawner && python setup.py install
+RUN cd /root/ && mkdir repos
+ADD ./SwarmSpawner /root/repos/SwarmSpawner
+RUN cd /root/repos/SwarmSpawner && python setup.py install
+
 
 #TODO this is a hack.  Looks like docker-py and docker have a name clash
 RUN /usr/bin/yes | pip uninstall docker docker-py docker-pycreds && pip install docker==2.0.1
-
-# Copy SSL cert and userlist
-RUN mkdir -p /srv/jupyterhub/ssl
-ADD ./secret/ssl /srv/jupyterhub/ssl
-ADD ./secret/userlist /srv/jupyterhub/userlist
-
-# We use port 8443 for the hub
-EXPOSE 8443
-
-# Copy our OAuthenticator hack
-ADD ./python /srv/jupyterhub/python
-
-# Set permissions for /srv/... stuff
-RUN chmod 700 /srv/jupyterhub && chmod 600 /srv/jupyterhub/ssl/* && \
-    chmod 600 /srv/jupyterhub/userlist
 
 
 # These will probably change often during dev, so they're at the bottom

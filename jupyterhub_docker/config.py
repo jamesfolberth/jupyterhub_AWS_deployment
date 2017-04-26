@@ -30,12 +30,13 @@ c.GoogleOAuthenticator.oauth_callback_url = os.environ['OAUTH_CALLBACK_URL']
 
 
 # create system users that don't exist yet
-c.Authenticator.create_system_users = True
+#c.Authenticator.create_system_users = True
 # Default adduser flags are for FreeBSD (works on CentOS 5, Debian, Ubuntu)
 # Doesn't work for us.
 # https://github.com/jupyterhub/jupyterhub/issues/696
-c.Authenticator.add_user_cmd =  ['adduser', '--disabled-password', '--quiet',
-    '--gecos', '""', '--home', '/home/USERNAME', '--force-badname']
+#c.Authenticator.add_user_cmd =  ['adduser', '--disabled-password', '--quiet',
+#    '--gecos', '""', '--home', '/home/USERNAME', '--force-badname']
+
 #c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME'] # not yet
 
 c.Authenticator.whitelist = whitelist = set()
@@ -59,7 +60,7 @@ c.JupyterHub.spawner_class = 'cassinyspawner.SwarmSpawner'
 
 c.JupyterHub.ip = '0.0.0.0'
 c.JupyterHub.hub_ip = '0.0.0.0'
-#c.JupyterHub.hub_ip = '172.31.47.221'
+#c.JupyterHub.hub_ip = 'jupyterhub_service'
 # The docker instances need access to the Hub, so the default loopback port doesn't work:
 #from jupyter_client.localinterfaces import public_ips
 #c.JupyterHub.hub_ip = public_ips()[0]
@@ -68,8 +69,8 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.cleanup_servers = True #TODO temp
 
 # First pulls can be really slow, so let's give it a big timeout
-#c.SwarmSpawner.start_timeout = 60 * 5
-c.SwarmSpawner.start_timeout = 15
+c.SwarmSpawner.start_timeout = 60 * 5
+#c.SwarmSpawner.start_timeout = 15
 
 c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub_service'
 
@@ -77,20 +78,24 @@ c.SwarmSpawner.networks = ["hubnet"]
 
 #notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
 notebook_dir = '/home/{username}'
-#c.SwarmSpawner.notebook_dir = notebook_dir #TODO 
+#notebook_dir = '/home/jovyan/work'
+c.SwarmSpawner.notebook_dir = notebook_dir #TODO 
 
 mounts = [{'type' : 'volume',
            'source' : 'jupyterhub-user-{username}',
-           'target' : notebook_dir}]
+           'target' : notebook_dir},
+          {'type': 'volume',
+           'source': '/home/{username}',
+           'target': notebook_dir}]
 
 c.SwarmSpawner.container_spec = {
     # The command to run inside the service
-    'args' : '/usr/local/bin/start-singleuser.sh', #(string or list)
+    #'args' : ['/usr/local/bin/start-systemuser.sh'], #list
     #'args': ['sh', '/usr/local/bin/start-singleuser.sh'] ,
-    #'Image' : 'data8-notebook',
-    'Image' : 'jupyter/minimal-notebook',
-    #'mounts' : mounts # TODO unmarshalling error
-    'mounts' : []
+    'Image' : 'data8-notebook',
+    #'Image' : 'jupyter/minimal-notebook',
+    'mounts' : mounts
+    #'mounts' : []
     }
 
 c.SwarmSpawner.debug = True
