@@ -53,6 +53,9 @@ ENV SHELL /bin/bash
 #while waiting for PR in jupyter/docker-stacks, keep the same naming conventions
 ADD systemuser.sh /usr/local/bin/start-systemuser.sh
 
+#RUN mkdir /home/jamesfolberth
+EXPOSE 8000-9000 32000-33000
+
 # smoke test entrypoint
 #RUN USER_ID=65000 USER=systemusertest HOME=/home/systemusertest sh /usr/local/bin/start-systemuser.sh -h && userdel systemusertest
 

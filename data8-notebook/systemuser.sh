@@ -4,7 +4,7 @@ if getent passwd $USER_ID > /dev/null ; then
   echo "$USER ($USER_ID) exists"
 else
   echo "Creating user $USER ($USER_ID)"
-  useradd -u $USER_ID -s $SHELL $USER --home $HOME
+  useradd -u $USER_ID -s $SHELL $USER # $HOME needs to be bind mounted
   chown -R $USER:$USER $HOME
 fi
 

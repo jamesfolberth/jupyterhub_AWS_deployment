@@ -76,24 +76,30 @@ c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub_service'
 
 c.SwarmSpawner.networks = ["hubnet"]
 
-#notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
-notebook_dir = '/home/{username}'
+notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
+#notebook_dir = '/home/{username}'
 #notebook_dir = '/home/jovyan/work'
-c.SwarmSpawner.notebook_dir = notebook_dir #TODO 
+c.SwarmSpawner.notebook_dir = notebook_dir # TODO
+#c.SwarmSpawner.notebook_dir = '/'
 
-mounts = [{'type' : 'volume',
-           'source' : 'jupyterhub-user-{username}',
-           'target' : notebook_dir},
-          {'type': 'volume',
-           'source': '/home/{username}',
-           'target': notebook_dir}]
+mounts = []
+mounts.append({'type' : 'volume',
+               'source' : 'jupyterhub-user-{username}',
+               'target' : notebook_dir})
+#mounts.append({'type': 'bind',
+#               'source': '/home/{username}',
+#               'target': notebook_dir})
+#mounts = [{'type': 'bind',
+#          'source': '/home/jamesfolberth',
+#          'target': '/home/jamesfolberth'}]
+
 
 c.SwarmSpawner.container_spec = {
     # The command to run inside the service
     #'args' : ['/usr/local/bin/start-systemuser.sh'], #list
     #'args': ['sh', '/usr/local/bin/start-singleuser.sh'] ,
-    'Image' : 'data8-notebook',
-    #'Image' : 'jupyter/minimal-notebook',
+    #'Image' : 'data8-notebook',
+    'Image' : 'jupyter/minimal-notebook',
     'mounts' : mounts
     #'mounts' : []
     }
