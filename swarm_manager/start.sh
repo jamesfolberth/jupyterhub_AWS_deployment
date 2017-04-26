@@ -1,7 +1,8 @@
 #!/bin/env bash
 
 # Get the local IP for this EC2 instance
-local_ip=`ec2-metadata --local-ipv4 | sed -ne 's/local-ipv4: //p'`
+#local_ip=`ec2-metadata --local-ipv4 | sed -ne 's/local-ipv4: //p'`
+local_ip=10.201.21.22 #XXXTEMP
 
 # Start up the swarm manager
 docker swarm init --advertise-addr $local_ip:2377 --listen-addr $local_ip:2377

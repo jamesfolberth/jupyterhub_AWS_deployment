@@ -16,16 +16,6 @@ RUN mkdir -p /srv/jupyterhub/ssl
 ADD ./secret/ssl /srv/jupyterhub/ssl
 ADD ./secret/userlist /srv/jupyterhub/userlist
 
-# We use port 8443 for the hub
-EXPOSE 8443
-
-# So we can actually talk to the swarm nodes!
-EXPOSE 8000-9000
-EXPOSE 32000-33000
-
-# Copy our OAuthenticator hack
-ADD ./python /srv/jupyterhub/python
-
 # Set permissions for /srv/... stuff
 RUN chmod 700 /srv/jupyterhub && chmod 600 /srv/jupyterhub/ssl/* && \
     chmod 600 /srv/jupyterhub/userlist
@@ -44,6 +34,19 @@ RUN chmod 700 /srv/jupyterhub && chmod 600 /srv/jupyterhub/ssl/* && \
 RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list && \
     apt-get -y update && apt-get -y install docker.io
 
+#TODO this is a hack.  Looks like docker-py and docker have a name clash
+RUN /usr/bin/yes | pip uninstall docker docker-py docker-pycreds && pip install docker==2.0.1
+
+# We use port 8443 for the hub
+EXPOSE 8443
+
+# So we can actually talk to the swarm nodes!
+EXPOSE 8000-9000
+EXPOSE 32000-33000
+
+# Copy our authenticator hacks
+ADD ./python /srv/jupyterhub/python
+
 # Clone and install SwarmSpawner
 #RUN cd ~ && mkdir repos && cd repos && \
 #    git clone https://github.com/jamesfolberth/SwarmSpawner.git && \
@@ -54,11 +57,6 @@ RUN cd /root/ && mkdir repos
 ADD ./SwarmSpawner /root/repos/SwarmSpawner
 RUN cd /root/repos/SwarmSpawner && python setup.py install
 
-
-#TODO this is a hack.  Looks like docker-py and docker have a name clash
-RUN /usr/bin/yes | pip uninstall docker docker-py docker-pycreds && pip install docker==2.0.1
-
-
 # These will probably change often during dev, so they're at the bottom
 # Copy Jupyterhub config + scripts
 ADD ./run_hub.sh /srv/jupyterhub/run_hub.sh
@@ -66,3 +64,4 @@ ADD ./config.py /srv/jupyterhub/config.py
 
 #CMD ["/bin/bash"]
 CMD ["/bin/bash", "/srv/jupyterhub/run_hub.sh"]
+
