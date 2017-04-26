@@ -1,2 +1,2 @@
 #!/bin/env bash
-docker build -t jhubdocker --network host .
+docker build -t jhubdocker .
