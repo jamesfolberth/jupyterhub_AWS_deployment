@@ -1,1 +1,1 @@
-docker build -t data8-notebook .
+docker build -t data8-notebook --network host .

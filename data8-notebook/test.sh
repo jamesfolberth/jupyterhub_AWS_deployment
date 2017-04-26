@@ -1,4 +1,4 @@
 #!/bin/env bash
-docker run -it --rm -e USER=jamesfolberth -e USER_ID=501 -e HOME=/home/jamesfolberth \
-  --volume /home/jamesfolberth:/home/jamesfolberth \
+docker run -it --rm -e USER=testuser -e USER_ID=1001 -e HOME=/home/testuser \
+  --volume /home/testuser:/home/testuser \
   data8-notebook $@

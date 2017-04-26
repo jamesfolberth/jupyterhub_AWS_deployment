@@ -2,6 +2,8 @@
 c = get_config()
 
 import my_oauthenticator
+import dummyauthenticator
+import docker_oauth
 
 import os
 pjoin = os.path.join
@@ -22,15 +24,17 @@ c.JupyterHub.db_url = pjoin(runtime_dir, 'jupyterhub.sqlite')
 
 
 # use GoogleOAuthenticator + LocalAuthenticator
-c.JupyterHub.authenticator_class = my_oauthenticator.LocalGoogleOAuthenticator
+#c.JupyterHub.authenticator_class = my_oauthenticator.LocalGoogleOAuthenticator
+#XXX: For testing only
+c.JupyterHub.authenticator_class = dummyauthenticator.DummyAuthenticator
+#c.JupyterHub.authenticator_class = docker_oauth.DockerDummy
 
 c.GoogleOAuthenticator.client_id = os.environ['OAUTH_CLIENT_ID']
 c.GoogleOAuthenticator.client_secret = os.environ['OAUTH_CLIENT_SECRET']
 c.GoogleOAuthenticator.oauth_callback_url = os.environ['OAUTH_CALLBACK_URL']
 
-
 # create system users that don't exist yet
-#c.Authenticator.create_system_users = True
+c.Authenticator.create_system_users = True
 # Default adduser flags are for FreeBSD (works on CentOS 5, Debian, Ubuntu)
 # Doesn't work for us.
 # https://github.com/jupyterhub/jupyterhub/issues/696
@@ -39,18 +43,19 @@ c.GoogleOAuthenticator.oauth_callback_url = os.environ['OAUTH_CALLBACK_URL']
 
 #c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME'] # not yet
 
-c.Authenticator.whitelist = whitelist = set()
-c.Authenticator.admin_users = admin = set()
-
-with open(pjoin(runtime_dir, 'userlist')) as f:
-    for line in f:
-        if not line:
-            continue
-        parts = line.split()
-        name = parts[0]
-        whitelist.add(name)
-        if len(parts) > 1 and parts[1] == 'admin':
-            admin.add(name)
+c.Authenticator.whitelist = ['james', 'testuser']
+#c.Authenticator.whitelist = whitelist = set()
+#c.Authenticator.admin_users = admin = set()
+#
+#with open(pjoin(runtime_dir, 'userlist')) as f:
+#    for line in f:
+#        if not line:
+#            continue
+#        parts = line.split()
+#        name = parts[0]
+#        whitelist.add(name)
+#        if len(parts) > 1 and parts[1] == 'admin':
+#            admin.add(name)
 
 
 
@@ -60,6 +65,7 @@ c.JupyterHub.spawner_class = 'cassinyspawner.SwarmSpawner'
 
 c.JupyterHub.ip = '0.0.0.0'
 c.JupyterHub.hub_ip = '0.0.0.0'
+c.JupyterHub.proxy_api_ip = '0.0.0.0'
 #c.JupyterHub.hub_ip = 'jupyterhub_service'
 # The docker instances need access to the Hub, so the default loopback port doesn't work:
 #from jupyter_client.localinterfaces import public_ips
@@ -76,19 +82,19 @@ c.SwarmSpawner.jupyterhub_service_name = 'jupyterhub_service'
 
 c.SwarmSpawner.networks = ["hubnet"]
 
-notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
-#notebook_dir = '/home/{username}'
+#notebook_dir = os.environ.get('NOTEBOOK_DIR') or '/home/jovyan/work'
+notebook_dir = '/home/{username}'
 #notebook_dir = '/home/jovyan/work'
 c.SwarmSpawner.notebook_dir = notebook_dir # TODO
 #c.SwarmSpawner.notebook_dir = '/'
 
 mounts = []
-mounts.append({'type' : 'volume',
-               'source' : 'jupyterhub-user-{username}',
-               'target' : notebook_dir})
-#mounts.append({'type': 'bind',
-#               'source': '/home/{username}',
-#               'target': notebook_dir})
+#mounts.append({'type' : 'volume',
+#               'source' : 'jupyterhub-user-{username}',
+#               'target' : notebook_dir})
+mounts.append({'type': 'bind',
+               'source': '/home/{username}',
+               'target': notebook_dir})
 #mounts = [{'type': 'bind',
 #          'source': '/home/jamesfolberth',
 #          'target': '/home/jamesfolberth'}]
@@ -97,9 +103,9 @@ mounts.append({'type' : 'volume',
 c.SwarmSpawner.container_spec = {
     # The command to run inside the service
     #'args' : ['/usr/local/bin/start-systemuser.sh'], #list
-    #'args': ['sh', '/usr/local/bin/start-singleuser.sh'] ,
-    #'Image' : 'data8-notebook',
-    'Image' : 'jupyter/minimal-notebook',
+    #'args': ['sh', '/usr/local/bin/start-systemuser.sh'] ,
+    'Image' : 'data8-notebook',
+    #'Image' : 'jupyter/minimal-notebook',
     'mounts' : mounts
     #'mounts' : []
     }
