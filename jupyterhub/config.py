@@ -30,11 +30,11 @@ c.GoogleOAuthenticator.oauth_callback_url = os.environ['OAUTH_CALLBACK_URL']
 
 
 # create system users that don't exist yet
-c.Authenticator.create_system_users = True
+c.Authenticator.create_system_users = False
 # Default adduser flags are for FreeBSD (works on CentOS 5, Debian, Ubuntu)
 # Doesn't work for us.
 # https://github.com/jupyterhub/jupyterhub/issues/696
-c.Authenticator.add_user_cmd =  ['adduser', '--home', '/home/USERNAME']
+#c.Authenticator.add_user_cmd =  ['adduser', '--home', '/home/USERNAME']
 #c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME'] # not yet
 
 c.Authenticator.whitelist = whitelist = set()
@@ -123,7 +123,7 @@ c.DockerSpawner.container_image = 'data8-notebook'
 
 #TODO get rid of user jovyan; see systemuserspawner
 #notebook_dir = os.environ.get('DOCKER_NOTEBOOK_DIR') or '/home/jovyan/work'
-#notebook_dir = '/home/{username}'
+notebook_dir = '/home/{username}'
 #c.DockerSpawner.notebook_dir = notebook_dir
 c.DockerSpawner.notebook_dir = '/'
 #c.DockerSpawner.notebook_dir = notebook_dir
@@ -238,11 +238,12 @@ c.DockerSpawner.use_internal_ip = False
 c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip
 #c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip+':'+str(c.JupyterHub.hub_port)
 
-
 # Mount the real user's Docker volume on the host to the notebook user's
 # notebook directory in the container
 #c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
+#c.DockerSpawner.volumes = { '/mnt/nfs/home/{username}': notebook_dir }
 #c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
 
 
 
+c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
