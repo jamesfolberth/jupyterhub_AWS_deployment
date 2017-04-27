@@ -97,6 +97,80 @@ We deviate in a few ways, however, since we have not registered a domain name.
      sudo mkdir /srv/jupyterhub/ssl
      sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /srv/jupyterhub/ssl/hub.key -out /srv/jupyterhub/ssl/hub.crt
      ```
+     
+3. Set up nginx and SSL
+   * hub subdomain
+   http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingNewSubdomain.html
+   https://aws.amazon.com/premiumsupport/knowledge-center/create-subdomain-route-53/
+   
+   * Install nginx
+    ```bash
+    sudo yum install nginx
+    sudo service nginx start
+    ```
+
+    You can test the nginx install by pointing your web browswer to the IP of the EC2 instance.
+    You should see a default `index.html`.
+
+    http://jupyterhub.readthedocs.io/en/latest/config-examples.html
+    https://www.nginx.com/blog/setting-up-nginx/
+
+   * Generate an SSL key with Let's Encrypt
+    ```bash
+    cd && mkdir repos && cd repos
+    git clone https://github.com/letsencrypt/letsencrypt
+    cd letsencrypt
+    ./letsencrypt-auto certonly --standalone -v -d 
+    ```
+    TODO: for now we use our self-signed cert
+    
+    https://aws.amazon.com/premiumsupport/knowledge-center/ec2-enable-epel/
+    ```bash
+    sudo yum-config-manager --enable epel
+    ```
+    
+    ```bash
+    cd downloads
+    wget https://dl.eff.org/certbot-auto
+    chmod a+x certbot-auto
+    ./certbot-auto certonly --standalone -d jamesfolberth.org --debug # need debug on Amazon Linux
+    ```
+    
+    Editing nginx  config files
+    
+    ```bash
+    openssl dhparam -out /etc/letsencrypt/live/jamesfolberth.org/
+    
+   * nginx config
+   ```bash
+   sudo su
+   cd /etc/nginx/
+   mv nginx.conf nginx.conf.bak
+   ```
+   Now edit `/etc/nginx/nginx.conf`:
+   ```
+    # For more information on configuration, see:
+#   * Official English Documentation: http://nginx.org/en/docs/
+#   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log;
+pid /var/run/nginx.pid;
+
+# Load dynamic modules. See /usr/share/nginx/README.dynamic.
+include /usr/share/nginx/modules/*.conf;
+
+events {
+    worker_connections 1024;
+}
+   ```
+   
+   ```bash
+   cd conf.d
+   ```
+   Redirect HTTP->HTTPS on a per-server basis
+   https://www.bjornjohansen.no/redirect-to-https-with-nginx
 
 4. Register the project with Google OAuth 2.0
    * Note that each time we spin up a new AMI, it will (almost surely) get a new IP address.  We can buy an elastic IP, but for the purposes of development, we'll just have to update the IP and URIs below each time we spin up a new hub instance.
@@ -130,6 +204,9 @@ We deviate in a few ways, however, since we have not registered a domain name.
      admin.user@gmail.com admin
      anotheruser@gmail.com
      ```
+     
+     TODO: need to make a script to add users to the system.  Should be run on all machines too (i.e., take in userlist as an argument)
+     
      As currently configured, Jupyterhub will create system users with the names `user.name`, `admin.user`, etc., and appropriate home directories.  `admin.user` won't have any special permissions on the underlying host system, but will be able to manage user notebook servers from Jupyterhub.
 
    * Clone this repo on the Jupyterhub host. ### and copy contents to a deploy folder.
@@ -138,6 +215,7 @@ We deviate in a few ways, however, since we have not registered a domain name.
    git clone https://github.com/jamesfolberth/NGC_STEM_camp_AWS.git
    cd NGC_STEM_camp_AWS/jupyterhub
    ```
+   
 
    * Optionally NAT port 443 to 8443 to be served by the hub.  We may put nginx on the front end to route to both the hub and a (simple) webserver.
      ```bash
