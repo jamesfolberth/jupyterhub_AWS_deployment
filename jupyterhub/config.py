@@ -51,6 +51,64 @@ with open(pjoin(runtime_dir, 'userlist')) as f:
 
 
 
+# nginx config stuff
+# Force the proxy to only listen to connections to 127.0.0.1
+c.JupyterHub.ip = '127.0.0.1'
+#c.JupyterHub.ip = '0.0.0.0'
+c.JupyterHub.proxy_api_ip = '127.0.0.1'
+
+
+# Zonca + legacy swarm
+# Point DockerSpawner to Swarm instead of the local DockerEngine
+os.environ["DOCKER_HOST"] = ":4000"
+
+c.JupyterHub.spawner_class = 'dockerspawner.SystemUserSpawner'
+c.DockerSpawner.container_image = 'data8-notebook'
+
+## Remove containers once they are stopped
+c.Spawner.remove_containers = True
+#
+## For debugging arguments passed to spawned containers
+c.Spawner.debug = True
+
+
+
+notebook_dir = '/home/{username}'
+#c.DockerSpawner.notebook_dir = notebook_dir
+c.DockerSpawner.notebook_dir = '/'
+#
+
+# The docker instances need access to the Hub, so the default loopback port doesn't work:
+from jupyter_client.localinterfaces import public_ips
+c.JupyterHub.hub_ip = public_ips()[0]
+#print('hub_ip = ',c.JupyterHub.hub_ip)
+
+
+# The docker instances need access to the Hub, so the default loopback port
+# doesn't work. We need to tell the hub to listen on 0.0.0.0 because it's in a
+# container, and we'll expose the port properly when the container is run. Then,
+# we explicitly tell the spawned containers to connect to the proper IP address.
+#c.JupyterHub.proxy_api_ip = '0.0.0.0'
+c.DockerSpawner.container_ip = '0.0.0.0'
+c.DockerSpawner.use_internal_ip = False
+
+c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip
+
+
+
+
+# Mount the real user's Docker volume on the host to the notebook user's
+# notebook directory in the container
+#c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
+#c.DockerSpawner.volumes = { '/mnt/nfs/home/{username}': notebook_dir }
+#c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
+
+c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
+
+
+
+
+
 
 # Try using SwarmSpawner from https://github.com/cassinyio/SwarmSpawner.git
 #c.JupyterHub.spawner_class = 'cassinyspawner.SwarmSpawner'
@@ -110,7 +168,7 @@ with open(pjoin(runtime_dir, 'userlist')) as f:
 #c.Spawner.args = ['--NotebookApp.default_url=/notebooks/lab01.ipynb']
 
 # Spawn user containers from this image
-c.DockerSpawner.container_image = 'data8-notebook'
+#c.DockerSpawner.container_image = 'data8-notebook'
 #c.DockerSpawner.container_image = 'systemuser'
 
 # Have the Spawner override the Docker run command
@@ -121,9 +179,9 @@ c.DockerSpawner.container_image = 'data8-notebook'
 
 #TODO get rid of user jovyan; see systemuserspawner
 #notebook_dir = os.environ.get('DOCKER_NOTEBOOK_DIR') or '/home/jovyan/work'
-notebook_dir = '/home/{username}'
+#notebook_dir = '/home/{username}'
 #c.DockerSpawner.notebook_dir = notebook_dir
-c.DockerSpawner.notebook_dir = '/'
+#c.DockerSpawner.notebook_dir = '/'
 #c.DockerSpawner.notebook_dir = notebook_dir
 #c.DockerSpawner.default_url = '/home/{username}' #TODO doesn't work
 
@@ -187,11 +245,6 @@ c.DockerSpawner.notebook_dir = '/'
 #c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
 #
 #
-## Remove containers once they are stopped
-c.Spawner.remove_containers = True
-#
-## For debugging arguments passed to spawned containers
-c.Spawner.debug = True
 
 
 
@@ -199,53 +252,3 @@ c.Spawner.debug = True
 
 
 
-
-
-
-
-
-# Zonca + legacy swarm
-# Point DockerSpawner to Swarm instead of the local DockerEngine
-os.environ["DOCKER_HOST"] = ":4000"
-
-# The docker instances need access to the Hub, so the default loopback port doesn't work:
-from jupyter_client.localinterfaces import public_ips
-c.JupyterHub.hub_ip = public_ips()[0]
-print('hub_ip = ',c.JupyterHub.hub_ip)
-
-#c.JupyterHub.hub_ip = '0.0.0.0'
-#c.JupyterHub.hub_port = 8080
-
-c.JupyterHub.spawner_class = 'dockerspawner.SystemUserSpawner' #TODO
-#c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
-# see https://hub.docker.com/r/zonca/jupyterhub-datascience-systemuser/builds/
-c.DockerSpawner.container_image = 'data8-notebook'
-#c.DockerSpawner.container_image = 'jupyter/minimal-notebook'
-c.DockerSpawner.remove_containers = True
-
-# The docker instances need access to the Hub, so the default loopback port
-# doesn't work. We need to tell the hub to listen on 0.0.0.0 because it's in a
-# container, and we'll expose the port properly when the container is run. Then,
-# we explicitly tell the spawned containers to connect to the proper IP address.
-c.JupyterHub.proxy_api_ip = '0.0.0.0'
-c.DockerSpawner.container_ip = '0.0.0.0'
-c.DockerSpawner.use_internal_ip = False
-
-c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip
-#c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip+':'+str(c.JupyterHub.hub_port)
-
-# Mount the real user's Docker volume on the host to the notebook user's
-# notebook directory in the container
-#c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
-#c.DockerSpawner.volumes = { '/mnt/nfs/home/{username}': notebook_dir }
-#c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
-
-
-
-c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
-
-
-
-# nginx config stuff
-# Force the proxy to only listen to connections to 127.0.0.1
-c.JupyterHub.ip = '127.0.0.1'
