@@ -26,14 +26,15 @@ for var in $vars; do
 done
 
 # Get the public hostname
-export EC2_PUBLIC_HOSTNAME=`ec2-metadata --public-hostname | sed -ne 's/public-hostname: //p'`
-if [ -z $EC2_PUBLIC_HOSTNAME ]; then
-   echo "Error: Failed to get EC2 public hostname from `ec2-metadata`"
-   exit 1
-else
-   echo "Using EC2_PUBLIC_HOSTNAME=$EC2_PUBLIC_HOSTNAME"
-fi
-export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_HOSTNAME}:8443/hub/oauth_callback
+#export EC2_PUBLIC_HOSTNAME=`ec2-metadata --public-hostname | sed -ne 's/public-hostname: //p'`
+#if [ -z $EC2_PUBLIC_HOSTNAME ]; then
+#   echo "Error: Failed to get EC2 public hostname from `ec2-metadata`"
+#   exit 1
+#else
+#   echo "Using EC2_PUBLIC_HOSTNAME=$EC2_PUBLIC_HOSTNAME"
+#fi
+#export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_HOSTNAME}:8443/hub/oauth_callback
+export OAUTH_CALLBACK_URL=https://hub.jamesfolberth.org/hub/oauth_callback
 
 # -E preserves environment variables (except not PATH, PYTHONPATH, etc.)
 jhub_bin=`which jupyterhub`

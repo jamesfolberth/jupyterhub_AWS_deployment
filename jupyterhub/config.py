@@ -11,9 +11,7 @@ ssl_dir = pjoin(runtime_dir, 'ssl')
 if not os.path.exists(ssl_dir):
     os.makedirs(ssl_dir)
 
-# https on :8443
-#TODO not on 8443, use nginx to handle 443
-c.JupyterHub.port = 8443
+c.JupyterHub.port = 8000
 c.JupyterHub.ssl_key = pjoin(ssl_dir, 'hub.key')
 c.JupyterHub.ssl_cert = pjoin(ssl_dir, 'hub.crt')
 
@@ -209,14 +207,12 @@ c.Spawner.debug = True
 # Zonca + legacy swarm
 # Point DockerSpawner to Swarm instead of the local DockerEngine
 os.environ["DOCKER_HOST"] = ":4000"
-                
-# We use NGINX for SSL
-c.JupyterHub.confirm_no_ssl = True
-        
+
 # The docker instances need access to the Hub, so the default loopback port doesn't work:
-from IPython.utils.localinterfaces import public_ips
+from jupyter_client.localinterfaces import public_ips
 c.JupyterHub.hub_ip = public_ips()[0]
-print(c.JupyterHub.hub_ip)
+print('hub_ip = ',c.JupyterHub.hub_ip)
+
 #c.JupyterHub.hub_ip = '0.0.0.0'
 #c.JupyterHub.hub_port = 8080
 
@@ -247,3 +243,9 @@ c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip
 
 
 c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
+
+
+
+# nginx config stuff
+# Force the proxy to only listen to connections to 127.0.0.1
+c.JupyterHub.ip = '127.0.0.1'
