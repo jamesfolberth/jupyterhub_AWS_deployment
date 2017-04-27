@@ -129,6 +129,7 @@ We deviate in a few ways, however, since we have not registered a domain name.
     sudo yum-config-manager --enable epel
     ```
     
+    https://certbot.eff.org/#centosrhel6-nginx
     ```bash
     cd downloads
     wget https://dl.eff.org/certbot-auto
@@ -378,6 +379,7 @@ cd ~/repos/NGC_STEM_camp_AWS/data8-notebook
 
 
 Need to have ports >= 32000 open on the worker nodes?  Need 8444 too?
+https://github.com/jupyterhub/jupyterhub/blob/master/docs/source/jupyterhub-aws-setup.md
 
 I had a weird instance where a worker node dropped out of the swarm (all processes still running).
 Maybe it lost the heartbeat?
