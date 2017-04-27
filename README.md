@@ -260,8 +260,53 @@ We've got scripts.
 
 TODO: which ports do we need open on which machines?
 
+### New Swarm Legacy Worker
+```bash
+sudo yum update
+sudo yum install docker git
+sudo vim /etc/sysconfig/docker
+   # Add OPTIONS = "...  -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"
+sudo service docker start
+sudo usermod -aG docker ec2-user
+logout
+```
+
+```bash
+cd && mkdir repos && cd repos
+git clone https://github.com/jamesfolberth/NGC_STEM_camp_AWS.git
+cd NGC_STEM_camp_AWS
+git checkout swarm
+cd swarm_worker
+./start_legacy $MANAGER_LOCAL_IPv4
+```
+
+Check that it joined the swarm.  On the manager
+```bash
+docker -H :4000 info
+```
+It might take a moment for the node to show up (especially if you just started up the manager+consul).
 
 
+add users (+ home dirs?)
+```bash
+sudo run_a_script.sh
+```
+
+Add docker images
+```bash
+cd ~/repos/NGC_STEM_camp_AWS/data8-notebook
+./build.sh
+```
+
+
+Need to have ports >= 32000 open on the worker nodes?  Need 8444 too?
+
+I had a weird instance where a worker node dropped out of the swarm (all processes still running).
+Maybe it lost the heartbeat?
+I did a `docker restart {swarm_worker_container}`, but this got the jupyter container in a redirect loop.
+I killed it with docker; can we do it form the admin panel of JHub?
+
+We'll eventually save an AMI, I think.  Then we'll just have to SSH in and join the swarm.
 
 
 
