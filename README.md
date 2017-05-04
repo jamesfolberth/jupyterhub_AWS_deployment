@@ -272,19 +272,6 @@ TODO: put README sections in the corresponding repos?
      If we didn't authenticate properly (perhaps the email in `/srv/jupyterhub/userlist` is misspelled), you'll see an error 403.
 
 
-## Jupyter Notebook Server Docker Container
-We've combined what we like from a few Jupyter notebook docker containers, and merged them into one.  We've used code from Jupyter's [minimal-notebook](https://github.com/jupyter/docker-stacks/tree/master/minimal-notebook), [scipy-notebook](https://github.com/jupyter/docker-stacks/tree/master/scipy-notebook), and from Jupyterhub's [systemuser](https://github.com/jupyterhub/dockerspawner/tree/master/systemuser).
-
-In the `data8-notebook` directory, there is a `Dockerfile`, and a few helper files.  We use Jupyter's [minimal-notebook](https://github.com/jupyter/docker-stacks/tree/master/minimal-notebook) as a base, then install [Anaconda](https://www.continuum.io/downloads) Python 3 and a variety of conda packages.  There are a few other little tweaks included from [scipy-notebook](https://github.com/jupyter/docker-stacks/tree/master/scipy-notebook).  Finally, we run the Jupyterhub single user notebook server a la [systemuser](https://github.com/jupyterhub/dockerspawner/tree/master/systemuser).
-
-To build the image,
-```bash
-cd data8-notebook && ./build.sh
-```
-This will build the Docker image and give it the tag `data8-notebook`.  The Jupyterhub config `jupyterhub/confg.py` will use SystemUserSpawner from [dockerspawner](https://github.com/jupyterhub/dockerspawner) to launch the container.  For data persistence, the container will mount the system directory TODO(`/home/{username}`) as the container's home directory.  We will eventually have TODO(`/home/{username}`) set up as an NFS mounted partition, so all the STEM camp students can easily share code.
-
-This image expects to have a few environment variables set (see [dockerspawner](https://github.com/jupyterhub/dockerspawner)), so it may not run properly if you just do `docker run -it --rm data8-notebook`.  Running it from Jupyterhub should work, though you may need to remove the database `/srv/jupyterhub/jupyterhub.sqlite`.  TODO: I'm not sure what's causing the spawn failures here.
-
 
 ## Docker Swarm - Legacy
 This works!  The standalone, legacy swarm is handled well by dockerspawner.*, so we'll use it instead of the relatively new
