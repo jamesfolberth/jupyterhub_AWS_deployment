@@ -10,3 +10,5 @@ yum update
 yum install docker
 service docker start
 usermod -aG docker ec2-user
+
+echo "now log out and back in to finish adding ec2-user to the docker group"
