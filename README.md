@@ -274,78 +274,6 @@ This will build the Docker image and give it the tag `data8-notebook`.  The Jupy
 This image expects to have a few environment variables set (see [dockerspawner](https://github.com/jupyterhub/dockerspawner)), so it may not run properly if you just do `docker run -it --rm data8-notebook`.  Running it from Jupyterhub should work, though you may need to remove the database `/srv/jupyterhub/jupyterhub.sqlite`.  TODO: I'm not sure what's causing the spawn failures here.
 
 
-## Swarm Worker Instances
-We manage the cluster with [Docker Swarm](https://docs.docker.com/engine/swarm/), which is integrated into Docker engine version 1.12 or greater.  The Docker Swarm manager node may be the same as the Jupyterhub node, in which case you shouldn't need to install any packages (item 2 below); however, the node must have the appropriate ports open (step 1 below), which aren't required for a plain Jupyterhub instance.  All the _worker_ nodes should still follow step 2 below to install Docker and start the daemon.
-
-1. Create instance
-   * For development, we're again using a t2.micro instance with an Amazon Linux AMI.  We set up a security group with the following rules to allow Docker Swarm to communicate.
-
-    |Ports |	Protocol	| Source |
-    |------|----------|--------|
-    |22	| tcp	| 0.0.0.0/0, ::/0 |
-    |2377	| tcp	| 0.0.0.0/0, ::/0 |
-    |4789	| udp	| 0.0.0.0/0, ::/0 |
-    |7946	| tcp	| 0.0.0.0/0, ::/0 |
-    |7946	| udp	| 0.0.0.0/0, ::/0 |
-
-2. Install packages
-   SSH to your new instance and install some packages.
-   ```bash
-   sudo yum update
-   sudo yum install docker git
-   sudo service docker start
-   sudo usermod -aG docker ec2-user
-   ```
-
-   Logout and SSH back in so we get in the docker group.
-
-   ```bash
-   cd ~/repos/NGC_...
-   ./start.sh
-   ```
-
-3. Start a swarm manager
-   This should print out something like:
-   ```
-   Swarm initialized: current node (dxn1zf6l61qsb1josjja83ngz) is now a manager.
-
-   To add a worker to this swarm, run the following command:
-
-       docker swarm join \
-       --token SWMTKN-1-49nj1cmql0jkz5s954yi3oex3nedyz0fb0xx14ie39trti4wxv-8vxv8rssmk743ojnwacrr2e7c \
-       192.168.99.100:2377
-
-   To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
-   ```
-
-   We can get more info about the state of the swarm with `docker info` and more info about the nodes in the swarm with `docker node ls`.
-
-4. Add worker nodes
-   If we don't have the join command from initializing the manager, we can run `docker swarm join-token worker` on the manager node to get the join command again.
-
-Leave the swarm with `docker swarm leave`.
-
-Once we get everything set up and tested on at least one node, we can create an AMI to easily spawn more worker nodes.  We'll still have to SSH in and join them to the swarm, which shouldn't be a big deal.
-
-
-## Swarm Manager Instances
-Try using https://github.com/cassinyio/SwarmSpawner.git
-
-```bash
-cd && mkdir repos && cd repos
-git clone https://github.com/cassinyio/SwarmSpawner.git
-cd SwarmSpawner
-sudo pip-3.4 install -r requirements.txt
-sudo python3 setup.py install
-```
-Need to run jupyterhub inside a Docker service on the overlay network?
-
-https://packages.debian.org/jessie-backports/docker.io
-
-
-
-
-
 ## Docker Swarm - Legacy
 This works!  The standalone, legacy swarm is handled well by dockerspawner.*, so we'll use it instead of the relatively new
 swarm mode built into the docker engine (at least until swarmspawner.SwarmSpawner is reliable).  I think the folks working on
@@ -419,52 +347,6 @@ I did a `docker restart {swarm_worker_container}`, but this got the jupyter cont
 I killed it with docker; can we do it form the admin panel of JHub?
 
 We'll eventually save an AMI, I think.  Then we'll just have to SSH in and join the swarm.
-
-
-
-## Kubernetes Cluster
-
-https://kubernetes.io/docs/getting-started-guides/binary_release/
-https://dl.k8s.io/v1.6.1/kubernetes-server-linux-amd64.tar.gz
-
-https://kubernetes.io/docs/tasks/kubectl/install/
-```bash
-curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-
-chmod +x ./kubectl
-sudo mv ./kubectl /usr/local/bin/kubectl
-```
-
-
-### kops
-https://kubernetes.io/docs/getting-started-guides/aws/
-https://github.com/kubernetes/kops
-https://github.com/kubernetes/kops/releases/tag/1.5.3
-https://github.com/kubernetes/kops/blob/master/docs/aws.md
-
-
-```bash
-wget https://github.com/kubernetes/kops/releases/download/1.5.3/kops-linux-amd64
-$ chmod +x kops-linux-amd64                 # Add execution permissions
-$ mv kops-linux-amd64 /usr/local/bin/kops   # Move the kops to /usr/local/bin
-
-sudo pip-3.4 install awscli
-
-wget https://github.com/kubernetes/kubernetes/releases/download/v1.6.1/kubernetes.tar.gz
-
-```
-
-
-https://www.reancloud.com/blog/installing-kubernetes-using-kubeadm/
-
-I had to disable gpg checks...
-```bash
-https://rpmfind.net/linux/rpm2html/search.php?query=iptables
-yum --nogpgcheck localinstall iptables.arch.rpm
-
-yum install kubeadm
-```
-Dang, still hanging on `kubeadm init`
 
 
 ## NFS Instance
