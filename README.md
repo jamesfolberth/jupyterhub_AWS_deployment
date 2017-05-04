@@ -10,6 +10,9 @@ The plan is to have Jupyterhub start single-user Jupyter notebooks, which are sp
 We'll have Docker Swarm start up the containers on one of a few worker nodes.
 For data sharing and persistence, we'll mount the user's home directories as an NFS partition, and point the home directory in the Docker containers to the NFS mount.
 
+TODO: point to various repos with similar things (e.g., Jess Hamrick's stuff)
+TODO: put README sections in the corresponding repos?
+
 ## Jupyterhub Instance
 We followed most of the instructions from [Deploying Jupyterhub on AWS](https://github.com/jupyterhub/jupyterhub/wiki/Deploying-JupyterHub-on-AWS).
 We deviate in a few ways, however, since we have not registered a domain name.
@@ -90,19 +93,22 @@ We deviate in a few ways, however, since we have not registered a domain name.
      sudo pip-3.4 install oauthenticator dockerspawner
      ```
 
-3. Generate a self-signed SSL certificate.
-   * We don't have a domain name for our project, so we'll use a self-signed SSL certificate for now.
-     Also, a self-signed cert is quite okay for testing/development.
+3a. Generate a self-signed SSL certificate.
+   * If you don't have a domain name for the project, you can use a self-signed SSL certificate.
+     A self-signed cert is quite okay for testing/development, but your browser will probably warn you about the cert when you navigate to your page.
      ```bash
      sudo mkdir /srv/jupyterhub/ssl
      sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /srv/jupyterhub/ssl/hub.key -out /srv/jupyterhub/ssl/hub.crt
      ```
-     
-3. Set up nginx and SSL
+
+3b. Set up nginx and SSL certificate
+   * Let's now assume that we have a domain name, say `jamesfolberth.org`.
+     We'll set up nginx to serve static HTML pages on `jamesfolberth.org`, and we'll set up Jupyterhub on `hub.jamesfolberth.org`.
+
    * hub subdomain
    http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingNewSubdomain.html
    https://aws.amazon.com/premiumsupport/knowledge-center/create-subdomain-route-53/
-   
+
    * Install nginx
     ```bash
     sudo yum install nginx
@@ -120,15 +126,16 @@ We deviate in a few ways, however, since we have not registered a domain name.
     cd && mkdir repos && cd repos
     git clone https://github.com/letsencrypt/letsencrypt
     cd letsencrypt
-    ./letsencrypt-auto certonly --standalone -v -d 
+    ./letsencrypt-auto certonly --standalone -v -d
     ```
     TODO: for now we use our self-signed cert
-    
+
+    Certbot is included in the EPEL repos.
     https://aws.amazon.com/premiumsupport/knowledge-center/ec2-enable-epel/
     ```bash
     sudo yum-config-manager --enable epel
     ```
-    
+
     https://certbot.eff.org/#centosrhel6-nginx
     ```bash
     cd downloads
@@ -136,12 +143,12 @@ We deviate in a few ways, however, since we have not registered a domain name.
     chmod a+x certbot-auto
     ./certbot-auto certonly --standalone -d jamesfolberth.org --debug # need debug on Amazon Linux
     ```
-    
+
     Editing nginx  config files
-    
+
     ```bash
     openssl dhparam -out /etc/letsencrypt/live/jamesfolberth.org/
-    
+
    * nginx config
    ```bash
    sudo su
@@ -150,28 +157,30 @@ We deviate in a few ways, however, since we have not registered a domain name.
    ```
    Now edit `/etc/nginx/nginx.conf`:
    ```
-    # For more information on configuration, see:
-#   * Official English Documentation: http://nginx.org/en/docs/
-#   * Official Russian Documentation: http://nginx.org/ru/docs/
+   # For more information on configuration, see:
+   #   * Official English Documentation: http://nginx.org/en/docs/
+   #   * Official Russian Documentation: http://nginx.org/ru/docs/
 
-user nginx;
-worker_processes auto;
-error_log /var/log/nginx/error.log;
-pid /var/run/nginx.pid;
+   user nginx;
+   worker_processes auto;
+   error_log /var/log/nginx/error.log;
+   pid /var/run/nginx.pid;
 
-# Load dynamic modules. See /usr/share/nginx/README.dynamic.
-include /usr/share/nginx/modules/*.conf;
+   # Load dynamic modules. See /usr/share/nginx/README.dynamic.
+   include /usr/share/nginx/modules/*.conf;
 
-events {
-    worker_connections 1024;
-}
+   events {
+      worker_connections 1024;
+      }
    ```
-   
+
    ```bash
    cd conf.d
    ```
    Redirect HTTP->HTTPS on a per-server basis
    https://www.bjornjohansen.no/redirect-to-https-with-nginx
+
+   See our config files in the `nginx` dirctory.
 
 4. Register the project with Google OAuth 2.0
    * Note that each time we spin up a new AMI, it will (almost surely) get a new IP address.  We can buy an elastic IP, but for the purposes of development, we'll just have to update the IP and URIs below each time we spin up a new hub instance.
@@ -179,15 +188,31 @@ events {
    * We want to use Google's authentication system for our project.  A lot of Jupyterhub deployments use GitHub authentication, which is good for their use-case, but for us, Google is probably simpler.
      Specificaly, we want to create an OAuth 2.0 Client ID for our project, so the users can authenticate with their Google accounts.
      Go to [Google API Manager](https://console.developers.google.com/apis/credentials) to set up a project.
-     You'll need to set a meaningful project name, and get the domain name of your AWS hub instance (might be something like https://ec2-{IPv4ADDR}.us-west-2.compute.amazonaws.com).
-     We'll be using port 8443 for the hub, as we may eventually use nginx as a port 443 front-end.
+     You'll need to set a meaningful project name, and get the domain name of your AWS hub instance (might be something like https://ec2-{IPv4ADDR}.us-west-2.compute.amazonaws.com if you aren't using your own domain).
+     For us, we're going to be serving the hub from `hub.jamesfolberth.org`, but if you're not using your own domain, you would use something like `https://ec2-{IPv4ADDR}.us-west-2.compute.amazonaws.com`.
+     If you're using the EC2 public hostname, you'll have to update the credentials every time the public hostname changes (e.g., when you start and stop the instance).
 
      Then set the authorized JS origins and callback URI:
      ```
      Authorized JavaScript origins:
-         https://ec2-{IPv4ADDR}.us-west-2.compute.amazonaws.com:8443
+         https://hub.jamesfolberth.org:443
      Authorized callback URIs:
-         https://ec2-{IPv4ADDR}.us-west-2.compute.amazonaws.com:8443/hub/oauth_callback
+         https://hub.jamesfolberth.org:443/hub/oauth_callback
+     ```
+
+     The callback /hub/oauth_callback is just what we assign to `OAUTH_CALLBACK_URL` in `start.sh`.
+     If you're using the EC2 public hostname, you can use the following in `start.sh` to set `OAUTH_CALLBACK_URL` to the current instance's public hostname (behind port 8443).
+
+     ```bash
+     # Get the public hostname
+     export EC2_PUBLIC_HOSTNAME=`ec2-metadata --public-hostname | sed -ne 's/public-hostname: //p'`
+     if [ -z $EC2_PUBLIC_HOSTNAME ]; then
+        echo "Error: Failed to get EC2 public hostname from `ec2-metadata`"
+        exit 1
+     else
+        echo "Using EC2_PUBLIC_HOSTNAME=$EC2_PUBLIC_HOSTNAME"
+     fi
+     export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_HOSTNAME}:8443/hub/oauth_callback
      ```
 
    * Once you've created the project, copy the client ID and secret to the file `/srv/jupyterhub/env`.
@@ -205,9 +230,9 @@ events {
      admin.user@gmail.com admin
      anotheruser@gmail.com
      ```
-     
-     TODO: need to make a script to add users to the system.  Should be run on all machines too (i.e., take in userlist as an argument)
-     
+
+     TODO: need to make a script to add users to the system.  Should be run on all machines too (i.e., take in userlist as an argument) and check if user already exists.
+
      As currently configured, Jupyterhub will create system users with the names `user.name`, `admin.user`, etc., and appropriate home directories.  `admin.user` won't have any special permissions on the underlying host system, but will be able to manage user notebook servers from Jupyterhub.
 
    * Clone this repo on the Jupyterhub host. ### and copy contents to a deploy folder.
@@ -216,18 +241,23 @@ events {
    git clone https://github.com/jamesfolberth/NGC_STEM_camp_AWS.git
    cd NGC_STEM_camp_AWS/jupyterhub
    ```
-   
 
-   * Optionally NAT port 443 to 8443 to be served by the hub.  We may put nginx on the front end to route to both the hub and a (simple) webserver.
+
+   * If you don't put nginx on the front end, you can optionally NAT port 443 to 8443 to be served by the hub.
+     You'll need to set `c.JupyterHub.port = 8443` in your `config.py`.
+     We'll be using nginx, so we don't do this.
      ```bash
      sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to 8443
      ```
 
-   * We haven't yet built Docker containers for the notebook instances, but we can still test out the hub a bit.  Start up the hub with `./start.sh`, which will set up a few environment variables and then run `sudo jupyterhub`.  The script uses `ec2-metadata` to get the running instance's public hostname.
+   * At this point, we haven't yet built Docker containers for the notebook instances, but we can still test out the hub a bit.  Start up the hub with `./start.sh`, which will set up a few environment variables and then run `sudo jupyterhub`.  The script uses `ec2-metadata` to get the running instance's public hostname.
 
-     Point your browser to `https://{PUBLIC_IPv4ADDR}:8443`.  You should see a warning that the connection is untrusted (because we're using a self-signed SSL cert), but you can proceed.  You should see a Google authentication page, which, once authenticated, will pass you to the main Jupyterhub page, where you can start a server, view the control panel, etc.
+     Point your browser to the hub (`https://{PUBLIC_IPv4ADDR}:8443` if you didn't use your own domain).
+     If you're using a self-signed SSL cert, you'll see a warning that the connection is untrusted.
+     You should see a Google authentication page, which, once authenticated, will pass you to the main Jupyterhub page, where you can start a server, view the control panel, etc.
 
-     Since we haven't built the notebook server Docker containers, clicking "Start My Server" should error out (500).  If we didn't authenticate properly (perhaps the email in `/srv/jupyterhub/userlist` is misspelled), you'll see an error 403.
+     Since we haven't built the notebook server Docker containers, clicking "Start My Server" should error out (500).
+     If we didn't authenticate properly (perhaps the email in `/srv/jupyterhub/userlist` is misspelled), you'll see an error 403.
 
 
 ## Jupyter Notebook Server Docker Container
@@ -333,6 +363,8 @@ We need a few extra ports open (2375, 4000, 8500, and 8888).  8888 is used by th
 
 
 `docker -H :4000 ps -a`
+
+echo "alias swarm='docker -H :4000'" >> ~/.bashrc
 
 
 We've got scripts.

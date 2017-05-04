@@ -245,10 +245,3 @@ c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
 #c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
 #
 #
-
-
-
-
-
-
-
