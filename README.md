@@ -10,27 +10,39 @@ The plan is to have Jupyterhub start single-user Jupyter notebooks, which are sp
 We'll have Docker Swarm start up the containers on one of a few worker nodes.
 For data sharing and persistence, we'll mount the user's home directories as an NFS partition, and point the home directory in the Docker containers to the NFS mount.
 
+We started by following the instructions from [Deploying Jupyterhub on AWS](https://github.com/jupyterhub/jupyterhub/wiki/Deploying-JupyterHub-on-AWS).
+We deviate in a few ways, however, so we're writing up our own instructions.
+
 TODO: point to various repos with similar things (e.g., Jess Hamrick's stuff)
 TODO: put README sections in the corresponding repos?
 
 ## Jupyterhub Instance
-We followed most of the instructions from [Deploying Jupyterhub on AWS](https://github.com/jupyterhub/jupyterhub/wiki/Deploying-JupyterHub-on-AWS).
-We deviate in a few ways, however, since we have not registered a domain name.
-
 1. Starting the hub VM
    * We developed and tested the config files on a t2.micro instance.
      For deployment, we'll probably want a larger instance for the hub, especially if it will also run a few notebook containers.
      We used a standard 64-bit Amazon Linux AMI.
      It has a reasonable number of packages in the `yum` repo, and most of the rest of the software we use can be installed with `pip`.
-     We set the following inbound rules:
+
+     We're running all instances in the same AWS virtual private cloud (VPC).
+     Suppose our VPC's IPv4 CIDR is 172.31.0.0/16.
+     We create a security group called "Jupyterhub" with the following allowed ports to the outside world:
 
     |Ports |	Protocol	| Source |
     |------|----------|--------|
     |22	| tcp	| 0.0.0.0/0, ::/0 |
+    |80	| tcp	| 0.0.0.0/0, ::/0 |
     |443	| tcp	| 0.0.0.0/0, ::/0 |
-    |8443	| tcp	| 0.0.0.0/0, ::/0 |
 
-   * We may eventually put nginx in front to host a (probably very simple) website and Jupyterhub, both on 443.
+     For inside the VPC only, we add the following ports to allow the hub API and connect to the notebooks on remote nodes.
+     Since we're inside a VPC (i.e., closed off from the outside world except for the above ports), I think we could instead just enable all ports 0-65536 for 172.31.0.0/16.
+
+    |Ports |	Protocol	| Source |
+    |------|----------|--------|
+    |8081| tcp	| 172.31.0.0/16 |
+    |32000-33000| tcp	| 172.31.0.0/16 |
+
+    Later on we'll use this node as a Docker swarm manager, which will require a few more open ports inside the VPC.
+    See TODO for details.
 
 2. Install a bunch of packages
    * To connect to the new instance, you'll need your SSH key (if it's your first time, you'll need AWS to generate one for you).
@@ -276,11 +288,13 @@ This image expects to have a few environment variables set (see [dockerspawner](
 
 ## Docker Swarm - Legacy
 This works!  The standalone, legacy swarm is handled well by dockerspawner.*, so we'll use it instead of the relatively new
-swarm mode built into the docker engine (at least until swarmspawner.SwarmSpawner is reliable).  I think the folks working on
+swarm mode built into the docker engine (at least until swarmspawner.SwarmSpawner is reliable, or DockerSpawner handles the API change).  I think the folks working on
 dockerspawner are aware of the change, and are thinking about what to do to fix it.  For now, though, it looks like legacy
 `docker run swarm ...` is the best way to go.
 
-https://zonca.github.io/2016/05/jupyterhub-docker-swarm.html
+A good guide is written up [here](https://zonca.github.io/2016/05/jupyterhub-docker-swarm.html).
+We use that as a starting point, but need to make a few modifications.
+
 http://jupyterhub.readthedocs.io/en/latest/getting-started.html#configuring-the-proxy-s-ip-address-and-port
 https://docs.docker.com/swarm/overview/
 
@@ -288,6 +302,8 @@ Edit /etc/sysconfig/docker  OPTIONS="..." instead of what @andreazonca has.
 
 We need a few extra ports open (2375, 4000, 8500, and 8888).  8888 is used by the hub API and needs to be open for incoming traffic for
 
+
+## Docker Swarm
 
 
 `docker -H :4000 ps -a`
@@ -337,17 +353,38 @@ cd ~/repos/NGC_STEM_camp_AWS/data8-notebook
 ./build.sh
 ```
 
+We'll eventually save an AMI, I think.  Then we'll just have to SSH in and join the swarm.
 
-Need to have ports >= 32000 open on the worker nodes?  Need 8444 too?
-https://github.com/jupyterhub/jupyterhub/blob/master/docs/source/jupyterhub-aws-setup.md
+We create another security group named "Swarm Manager" that has the following ports open to the VPC.
+Again, I think we can just open them all up to the VPC.
+Ports 2375, 4000, and 8500 are used by Docker swarm and consul, a distributed key-store used to store information about the nodes.
+Ports 32000-33000 are used by the Jupyter notebook servers (inside of Docker containers).
+    |Ports |	Protocol	| Source |
+    |------|----------|--------|
+    |2375	| tcp	| 172.31.0.0/16 |
+    |4000	| tcp	| 172.31.0.0/16 |
+    |8500| tcp	| 172.31.0.0/16 |
+    |32000-33000| tcp	| 172.31.0.0/16 |
 
+We make a final security group named "Swarm Worker" that has the following ports open to the VPC.
+    |Ports |	Protocol	| Source |
+    |------|----------|--------|
+    |2375	| tcp	| 172.31.0.0/16 |
+    |4000	| tcp	| 172.31.0.0/16 |
+    |8500| tcp	| 172.31.0.0/16 |
+
+
+
+## NFS Instance
+TODO
+
+
+## Weird Stuff
 I had a weird instance where a worker node dropped out of the swarm (all processes still running).
 Maybe it lost the heartbeat?
 I did a `docker restart {swarm_worker_container}`, but this got the jupyter container in a redirect loop.
 I killed it with docker; can we do it form the admin panel of JHub?
 
-We'll eventually save an AMI, I think.  Then we'll just have to SSH in and join the swarm.
 
-
-## NFS Instance
-TODO
+If things get weird, may need to delete the hub's database?
+* If a notebook server container failed to start, it may not clear the name `jupyter-{username}`.  We can nuke the DB to "fix" this, but it might cause other issues.  Hmmm... better yet go to the admin control panel and "stop all" (the hub has forgotten that the container is still running)?
