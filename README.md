@@ -14,6 +14,7 @@ We started by following the instructions from [Deploying Jupyterhub on AWS](http
 We deviate in a few ways, however, so we're writing up our own instructions.
 
 TODO: point to various repos with similar things (e.g., Jess Hamrick's stuff)
+
 TODO: put README sections in the corresponding repos?
 
 ## Jupyterhub Instance
@@ -160,6 +161,7 @@ TODO: put README sections in the corresponding repos?
 
     ```bash
     openssl dhparam -out /etc/letsencrypt/live/jamesfolberth.org/
+    ```
 
    * nginx config
    ```bash
@@ -346,19 +348,21 @@ We create another security group named "Swarm Manager" that has the following po
 Again, I think we can just open them all up to the VPC.
 Ports 2375, 4000, and 8500 are used by Docker swarm and consul, a distributed key-store used to store information about the nodes.
 Ports 32000-33000 are used by the Jupyter notebook servers (inside of Docker containers).
-    |Ports |	Protocol	| Source |
-    |------|----------|--------|
-    |2375	| tcp	| 172.31.0.0/16 |
-    |4000	| tcp	| 172.31.0.0/16 |
-    |8500| tcp	| 172.31.0.0/16 |
-    |32000-33000| tcp	| 172.31.0.0/16 |
+
+   |Ports |	Protocol	| Source |
+   |------|----------|--------|
+   |2375	| tcp	| 172.31.0.0/16 |
+   |4000	| tcp	| 172.31.0.0/16 |
+   |8500| tcp	| 172.31.0.0/16 |
+   |32000-33000| tcp	| 172.31.0.0/16 |
 
 We make a final security group named "Swarm Worker" that has the following ports open to the VPC.
-    |Ports |	Protocol	| Source |
-    |------|----------|--------|
-    |2375	| tcp	| 172.31.0.0/16 |
-    |4000	| tcp	| 172.31.0.0/16 |
-    |8500| tcp	| 172.31.0.0/16 |
+
+   |Ports |	Protocol	| Source |
+   |------|----------|--------|
+   |2375	| tcp	| 172.31.0.0/16 |
+   |4000	| tcp	| 172.31.0.0/16 |
+   |8500| tcp	| 172.31.0.0/16 |
 
 
 
