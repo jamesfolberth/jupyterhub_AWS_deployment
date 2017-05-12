@@ -1,0 +1,41 @@
+#!/bin/env python
+
+import os, os.path, re, pwd
+
+USERLIST='/srv/jupyterhub/userlist'
+
+def user_exist(username):
+    try:
+        pwd.getpwnam(username)
+        print 'User {} exists; skipping.'.format(username)
+        return True
+    except KeyError:
+        #Warning('User {} does not exist.'.format(username))
+        return False
+
+def add_user(username, home_base='/mnt/nfs/home/'):
+    try:
+        home = os.path.join(home_base, username)
+        os.system('useradd --home {home} {username}'.format(
+            username=username, home=home))
+        print 'Added user {} (home={})'.format(username, home)
+    except: # what's the right Exception?
+        Warning('Adding user {} failed!'.format(username))
+
+def main():
+    email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+
+    with open(USERLIST, 'r') as f:
+        for line in f:
+            email = line.split()[0]
+            if not email_re.match(email):
+                raise Warning('{} is not a vaild email'.format(email))
+            
+            # matches my_oauthenticator
+            username = email.split('@')[0].lower()
+                
+            if not user_exist(username):
+                add_user(username)
+                
+if __name__ == '__main__':
+    main()
