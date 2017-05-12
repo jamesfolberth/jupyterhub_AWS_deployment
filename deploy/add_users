@@ -13,11 +13,11 @@ def user_exist(username):
         #Warning('User {} does not exist.'.format(username))
         return False
 
-def add_user(username, home_base='/mnt/nfs/home/'):
+def add_user(username, i, home_base='/mnt/nfs/home/'):
     try:
         home = os.path.join(home_base, username)
-        os.system('useradd --home {home} {username}'.format(
-            username=username, home=home))
+        os.system('useradd --home {home} --uid {UID} {username}'.format(
+            username=username, home=home, UID=1500+i))
         print 'Added user {} (home={})'.format(username, home)
     except: # what's the right Exception?
         Warning('Adding user {} failed!'.format(username))
@@ -26,7 +26,7 @@ def main():
     email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
     with open(USERLIST, 'r') as f:
-        for line in f:
+        for i, line in enumerate(f):
             email = line.split()[0]
             if not email_re.match(email):
                 raise Warning('{} is not a vaild email'.format(email))
@@ -35,7 +35,7 @@ def main():
             username = email.split('@')[0].lower()
                 
             if not user_exist(username):
-                add_user(username)
+                add_user(username,i)
                 
 if __name__ == '__main__':
     main()
