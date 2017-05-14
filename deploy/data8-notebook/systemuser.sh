@@ -11,11 +11,8 @@ else
   chown -R $USER:$USER $HOME
 fi
 
-cat /etc/passwd
-echo $HOME
-
-ls -lR /home
-#ls -lR /mnt
+#cat /etc/passwd
+#ls -lR /home
 
 notebook_arg=""
 if [ -n "${NOTEBOOK_DIR:+x}" ]
