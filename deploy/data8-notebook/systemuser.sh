@@ -7,11 +7,15 @@ if getent passwd $USER > /dev/null ; then
 else
   echo "Creating user $USER ($USER_ID)"
   #useradd -u $USER_ID -s $SHELL $USER # $HOME needs to be bind mounted
-  useradd --home-dir $HOME $USER # $HOME needs to be bind mounted
+  useradd -u $USER_ID --home-dir $HOME $USER # $HOME needs to be bind mounted
   chown -R $USER:$USER $HOME
 fi
 
+cat /etc/passwd
+echo $HOME
+
 ls -lR /home
+#ls -lR /mnt
 
 notebook_arg=""
 if [ -n "${NOTEBOOK_DIR:+x}" ]

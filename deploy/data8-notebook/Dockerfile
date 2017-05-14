@@ -57,6 +57,9 @@ ADD systemuser.sh /usr/local/bin/start-systemuser.sh
 # we will map 0.0.0.0:32XXX->8888/tcp
 EXPOSE 8888 
 
+WORKDIR /
+RUN rm -rf /home
+
 # smoke test entrypoint
 #RUN USER_ID=65000 USER=systemusertest HOME=/home/systemusertest sh /usr/local/bin/start-systemuser.sh -h && userdel systemusertest
 
