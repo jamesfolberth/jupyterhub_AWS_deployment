@@ -1,2 +1,3 @@
 *.default
 *.pyc
+deploy/userlist

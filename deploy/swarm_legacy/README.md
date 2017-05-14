@@ -4,7 +4,28 @@ At the time of this writing, there aren't yet good ways to handling the new swar
 This is probably going to be fixed in the future, but for now, it should provide a (stable) way to use Docker swarm.
 Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.docker.com/swarm/overview/).
 
-1. Install Docker on a new manager or worker node.
+1. We'll need a few ports open:
+   We create another security group named "Swarm Manager" that has the following ports open to the VPC.
+   Again, I think we can just open them all up to the VPC.
+   Ports 2375, 4000, and 8500 are used by Docker swarm and consul, a distributed key-store used to store information about the nodes.
+   Ports 32000-33000 are used by the Jupyter notebook servers (inside of Docker containers).
+
+      |Ports |	Protocol	| Source |
+      |------|----------|--------|
+      |2375	| tcp	| 172.31.0.0/16 |
+      |4000	| tcp	| 172.31.0.0/16 |
+      |8500| tcp	| 172.31.0.0/16 |
+      |32000-33000| tcp	| 172.31.0.0/16 |
+
+   We make a final security group named "Swarm Worker" that has the following ports open to the VPC.
+
+      |Ports |	Protocol	| Source |
+      |------|----------|--------|
+      |2375	| tcp	| 172.31.0.0/16 |
+      |4000	| tcp	| 172.31.0.0/16 |
+      |8500| tcp	| 172.31.0.0/16 |
+
+2. Install Docker on a new manager or worker node.
    ```bash
    sudo yum update
    sudo yum install docker git
@@ -17,8 +38,36 @@ Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.do
 
    We logout and then back in to propogate the group change.
 
-2. TODO
+3. If we're a manager, start with the `start_manager.sh` script.
+   ```bash
+   cd ~/repos/jupyterhub_AWS_deployment/deploy/docker_swarm
+   ./start_manager.sh
+   ```
 
+   If we're a worker, start with the `start_worker.sh` script.
+   I'm not sure it's strictly necessary, but it's potentially wise/better to ensure the manager is already running.
+   ```bash
+   cd ~/repos/jupyterhub_AWS_deployment/deploy/docker_swarm
+   ./start_worker.sh {LOCAL_IPv4_OF_MANAGER}
+   ```
+
+4. Add the `userlist` to this worker:
+   ```bash
+   sudo mkdir -p /srv/jupyterhub
+   sudo chown -R ec2-user:ec2-user /srv/jupyterhub/
+   chmod -R 700 /srv/jupyterhub
+   ```
+
+   (From somewhere else) Copy over the userlist to this worker:
+   ```bash
+   scp userlist ec2-user@{WORKER_PUBLIC_IPv4}:/srv/jupyterhub/
+   ```
+
+   Add users using the script `add_users`:
+   ```bash
+   cd ~/repos/jupyterhub_AWS_deployment/deploy
+   sudo ./add_users
+   ```
 
 
 
@@ -91,23 +140,3 @@ cd ~/repos/NGC_STEM_camp_AWS/data8-notebook
 ```
 
 We'll eventually save an AMI, I think.  Then we'll just have to SSH in and join the swarm.
-
-We create another security group named "Swarm Manager" that has the following ports open to the VPC.
-Again, I think we can just open them all up to the VPC.
-Ports 2375, 4000, and 8500 are used by Docker swarm and consul, a distributed key-store used to store information about the nodes.
-Ports 32000-33000 are used by the Jupyter notebook servers (inside of Docker containers).
-
-   |Ports |	Protocol	| Source |
-   |------|----------|--------|
-   |2375	| tcp	| 172.31.0.0/16 |
-   |4000	| tcp	| 172.31.0.0/16 |
-   |8500| tcp	| 172.31.0.0/16 |
-   |32000-33000| tcp	| 172.31.0.0/16 |
-
-We make a final security group named "Swarm Worker" that has the following ports open to the VPC.
-
-   |Ports |	Protocol	| Source |
-   |------|----------|--------|
-   |2375	| tcp	| 172.31.0.0/16 |
-   |4000	| tcp	| 172.31.0.0/16 |
-   |8500| tcp	| 172.31.0.0/16 |
