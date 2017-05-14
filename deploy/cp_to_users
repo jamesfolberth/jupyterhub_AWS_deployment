@@ -1,0 +1,65 @@
+#!/bin/env python
+
+import os, os.path, re, pwd
+import argparse
+
+USERLIST='/srv/jupyterhub/userlist'
+HOME_BASE='/mnt/nfs/home/'
+
+def user_exist(username):
+    try:
+        pwd.getpwnam(username)
+        return True
+    except KeyError:
+        #Warning('User {} does not exist.'.format(username))
+        return False
+
+def ensure_home_owner(username):
+    home = os.path.join(HOME_BASE, username)
+    try:
+        os.system('chown -R {username}:{username} {home}'.format(username=username, home=home))
+        os.system('chmod 755 -R {}'.format(home))
+        print 'Changing owner/permissions for user {} home {}.'.format(username, home)
+    except:
+        Warning('Changing owner/permissions for user {} home {} failed!'.format(username, home))
+
+def rsync_update(username, indir, name):
+    home = os.path.join(HOME_BASE, username)
+    outdir = os.path.join(home, name)
+    try:
+        os.system('rsync -ru {indir} {outdir}'.format(
+            indir=indir, outdir=outdir))
+    except:
+        Warning('Failded to copy files to ')
+
+def main(args):
+    email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+
+    with open(USERLIST, 'r') as f:
+        for i, line in enumerate(f):
+            email = line.split()[0]
+            if not email_re.match(email):
+                raise Warning('{} is not a vaild email'.format(email))
+            
+            # matches my_oauthenticator
+            username = email.split('@')[0].lower()
+                
+            if user_exist(username):
+                rsync_update(username, args.indir, args.name)
+                ensure_home_owner(username) 
+            else:
+                print "User {} doesn't exist!".format(username)
+                
+if __name__ == '__main__':
+    #Clone the input directory into each user''s home dir
+    parser = argparse.ArgumentParser()
+
+    # indir/outdir
+    parser.add_argument('indir', type=str,
+                      help='The directory of original files.')
+    parser.add_argument('name', type=str,
+                      help='The name of the directory in the user''s home dir.')
+
+    args = parser.parse_args()
+
+    main(args)
