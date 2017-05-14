@@ -3,6 +3,7 @@
 import os, os.path, re, pwd
 
 USERLIST='/srv/jupyterhub/userlist'
+HOME_BASE='/mnt/nfs/home/'
 
 def user_exist(username):
     try:
@@ -13,11 +14,22 @@ def user_exist(username):
         #Warning('User {} does not exist.'.format(username))
         return False
 
-def add_user(username, i, home_base='/mnt/nfs/home/'):
+def ensure_home_owner(username):
+    home = os.path.join(HOME_BASE, username)
     try:
-        home = os.path.join(home_base, username)
+        os.system('chown -R {username}:{username} {home}'.format(username=username, home=home))
+        os.system('chmod 755 -R {}'.format(home))
+        print 'Changing owner/permissions for user {} home {}.'.format(username, home)
+    except:
+        Warning('Changing owner/permissions for user {} home {} failed!'.format(username, home))
+
+def add_user(username, i):
+    home = os.path.join(HOME_BASE, username)
+    try:
         os.system('useradd --home {home} --uid {UID} {username}'.format(
             username=username, home=home, UID=1500+i))
+        os.system('chown -R {username}:{username} {home}'.format(username=username, home=home))
+        os.system('chmod 755 -R {}'.format(home))
         print 'Added user {} (home={})'.format(username, home)
     except: # what's the right Exception?
         Warning('Adding user {} failed!'.format(username))
@@ -36,6 +48,7 @@ def main():
                 
             if not user_exist(username):
                 add_user(username,i)
+            ensure_home_owner(username)
                 
 if __name__ == '__main__':
     main()
