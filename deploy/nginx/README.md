@@ -16,12 +16,14 @@ This will obviously be different for your site.
 We're going to use `jamesfolberth.org` to serve static HTML pages, and `hub.jamesfolberth.org` for Jupyterhub, so we'll actually do this twice.
 The certs we generate are output to `/etc/letsencrypt/live/`
 
+TODO JMF 14 May 2017: We don't need both 1 and 2.
+
 1. Generate an SSL/TLS key with [Let's Encrypt](https://letsencrypt.org/).
    ```bash
    cd && cd repos
    git clone https://github.com/letsencrypt/letsencrypt
    cd letsencrypt
-   ./letsencrypt-auto certonly --standalone -v -d
+   ./letsencrypt-auto certonly --standalone -v -d jamesfolberth.org --debug # need debug on Amazon Linux
    ```
 
 2. Prove that we have control of our server with the EFF's [certbot](https://certbot.eff.org/#centosrhel6-nginx)
@@ -34,7 +36,7 @@ The certs we generate are output to `/etc/letsencrypt/live/`
 
 3. Generate D-H parameters
    ```bash
-   openssl dhparam -out /etc/letsencrypt/live/jamesfolberth.org/
+   sudo openssl dhparam -out /etc/letsencrypt/live/jamesfolberth.org/dhparams.pem 2048
    ```
 
 
@@ -104,3 +106,5 @@ The certs we generate are output to `/etc/letsencrypt/live/`
 
 3. The static HTML server expects files in `/data/www`.
    The proxy to the hub expects to the hub to be serving on port 8000 of the localhost.
+
+4. Reload nginx files with `sudo nginx -s reload`.

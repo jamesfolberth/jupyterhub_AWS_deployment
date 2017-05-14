@@ -11,11 +11,19 @@ Put the following in `/etc/fstab`:
 ```
 mount-target-DNS:/ efs-mount-point nfs4 nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 0 0
 ```
-Note that it appears that we (currently) can't just do a `sudo mount`, as Docker needs to have the mount info in `/etc/fstab` to actually mount the volume.  See [here](https://forums.docker.com/t/docker-fails-to-mount-v-volume-from-nfs-mounted-directory/582/19) for a thread on the topic.
+Note that it appears that we (currently) can't just do a `sudo mount`, as Docker needs to have the mount info in `/etc/fstab` to actually mount the volume.
+Note that you'll also need to restart the docker service (`sudo service docker restart`) if you add the mount after installing/starting docker.
+See [here](https://forums.docker.com/t/docker-fails-to-mount-v-volume-from-nfs-mounted-directory/582/19) for a thread on the topic.
 
 For us, EFS gives a mount-target-DNS that's something like `fs-XXXXXXX.efs.REGION.amazonaws.com`, so you'll add that and change the efs-mount-point to wherever you want to mount the EFS to the host machine.
 For us, we're going to mount it to `/mnt/nfs/home` and then bind that volume to `/home` in the Docker Jupyter notebook server containers.
 
+
+```bash
+sudo mkdir -p /mnt/nfs/home
+```
+
+Now reboot the machine, and then do a `sudo mount /mnt/nfs/home` once logged back in.
 
 It looks like docker is setting the owner to UIDs instead of usernames, which is less than ideal.
 We must ensure that all USER/UID pairs are the same across all nodes.

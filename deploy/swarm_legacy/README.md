@@ -38,7 +38,13 @@ Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.do
 
    We logout and then back in to propogate the group change.
 
-3. If we're a manager, start with the `start_manager.sh` script.
+3. Clone this repo:
+   ```bash
+   cd && mkdir repos && cd repos
+   git clone https://github.com/jamesfolberth/jupyterhub_AWS_deployment.git
+   ```
+
+   If we're a manager, start with the `start_manager.sh` script.
    ```bash
    cd ~/repos/jupyterhub_AWS_deployment/deploy/docker_swarm
    ./start_manager.sh
