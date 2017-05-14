@@ -63,4 +63,8 @@ RUN rm -rf /home
 # smoke test entrypoint
 #RUN USER_ID=65000 USER=systemusertest HOME=/home/systemusertest sh /usr/local/bin/start-systemuser.sh -h && userdel systemusertest
 
+RUN cat /usr/bin/yes | pip install \
+   datascience okpy
+
+
 CMD ["sh", "/usr/local/bin/start-systemuser.sh"]
