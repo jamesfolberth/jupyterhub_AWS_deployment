@@ -67,16 +67,15 @@ c.DockerSpawner.container_image = 'data8-notebook'
 
 ## Remove containers once they are stopped
 c.Spawner.remove_containers = True
-#
-## For debugging arguments passed to spawned containers
+
+# For debugging arguments passed to spawned containers
 c.Spawner.debug = True
 
 
 
 #notebook_dir = '/home/{username}'
 #c.DockerSpawner.notebook_dir = notebook_dir
-c.DockerSpawner.notebook_dir = '/'
-#c.DockerSpawner.notebook_dir = '/mnt/nfs/home'
+c.DockerSpawner.notebook_dir = '/home'
 
 
 # The docker instances need access to the Hub, so the default loopback port doesn't work:
@@ -99,17 +98,10 @@ c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip
 
 
 # Mount the real user's Docker volume on the host to the notebook user's
-# notebook directory in the container
-#c.DockerSpawner.volumes = { 'jupyterhub-user-{username}': notebook_dir }
-#c.DockerSpawner.volumes = { '/mnt/nfs/home': notebook_dir }
+# notebook directory in the container.  Mount all of NFS home
 c.DockerSpawner.volumes = { '/mnt/nfs/home': '/home' }
-#c.DockerSpawner.volumes = { '/mnt/nfs/home': {'bind': '/home', 'mode': 'rw'}}
-#c.DockerSpawner.volumes = { '/home': '/mnt/nfs/home'}
-#c.DockerSpawner.extra_create_kwargs.update({ 'volume_driver': 'local' })
 
 c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
-#c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home' # so they can see all users files (e.g., for sharing)
-#c.SystemUserSpawner.image_homedir_format_string = '/home'
 
-
+c.DockerSpawner.extra_host_config = {'mem_limit': '1g'}
 
