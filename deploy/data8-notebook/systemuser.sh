@@ -17,7 +17,7 @@ fi
 notebook_arg=""
 if [ -n "${NOTEBOOK_DIR:+x}" ]
 then
-    notebook_arg="--notebook-dir=${NOTEBOOK_DIR} --debug"
+    notebook_arg="--notebook-dir=${NOTEBOOK_DIR} --NotebookApp.iopub_data_rate_limit=1000000000"
 fi
 
 sudo -E PATH="${CONDA_DIR}/bin:$PATH" -u $USER $CONDA_DIR/bin/jupyterhub-singleuser \
