@@ -28,12 +28,12 @@ c.GoogleOAuthenticator.oauth_callback_url = os.environ['OAUTH_CALLBACK_URL']
 
 
 # create system users that don't exist yet
-c.Authenticator.create_system_users = False
+c.Authenticator.create_system_users = True
 # Default adduser flags are for FreeBSD (works on CentOS 5, Debian, Ubuntu)
 # Doesn't work for us.
 # https://github.com/jupyterhub/jupyterhub/issues/696
 #c.Authenticator.add_user_cmd =  ['adduser', '--home', '/home/USERNAME']
-#c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME'] # not yet
+c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME'] # not yet
 
 c.Authenticator.whitelist = whitelist = set()
 c.Authenticator.admin_users = admin = set()
@@ -43,10 +43,11 @@ with open(pjoin(runtime_dir, 'userlist')) as f:
         if not line:
             continue
         parts = line.split()
-        name = parts[0]
-        whitelist.add(name)
-        if len(parts) > 1 and parts[1] == 'admin':
-            admin.add(name)
+        if parts:
+            name = parts[0]
+            whitelist.add(name)
+            if len(parts) > 1 and parts[1] == 'admin':
+                admin.add(name)
 
 
 

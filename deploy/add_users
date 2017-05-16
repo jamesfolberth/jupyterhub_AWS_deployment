@@ -21,7 +21,7 @@ def ensure_home_owner(username):
         os.system('chmod 755 -R {}'.format(home))
         print 'Changing owner/permissions for user {} home {}.'.format(username, home)
     except:
-        Warning('Changing owner/permissions for user {} home {} failed!'.format(username, home))
+        raise Warning('Changing owner/permissions for user {} home {} failed!'.format(username, home))
 
 def add_user(username, i):
     home = os.path.join(HOME_BASE, username)
@@ -32,7 +32,7 @@ def add_user(username, i):
         os.system('chmod 755 -R {}'.format(home))
         print 'Added user {} (home={})'.format(username, home)
     except: # what's the right Exception?
-        Warning('Adding user {} failed!'.format(username))
+        raise Warning('Adding user {} failed!'.format(username))
 
 def main():
     email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")

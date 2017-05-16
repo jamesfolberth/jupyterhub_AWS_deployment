@@ -21,7 +21,7 @@ def ensure_home_owner(username):
         os.system('chmod 755 -R {}'.format(home))
         print 'Changing owner/permissions for user {} home {}.'.format(username, home)
     except:
-        Warning('Changing owner/permissions for user {} home {} failed!'.format(username, home))
+        raise Warning('Changing owner/permissions for user {} home {} failed!'.format(username, home))
 
 def rsync_update(username, indir, name):
     home = os.path.join(HOME_BASE, username)
@@ -30,7 +30,7 @@ def rsync_update(username, indir, name):
         os.system('rsync -ru {indir} {outdir}'.format(
             indir=indir, outdir=outdir))
     except:
-        Warning('Failded to copy files to ')
+        raise Warning('Failded to copy files to ')
 
 def main(args):
     email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
