@@ -31,6 +31,9 @@ RUN conda install --quiet --yes \
     conda remove --quiet --yes --force qt pyqt && \
     conda clean -tipsy
 
+RUN cat /usr/bin/yes | pip install \
+   datascience okpy
+
 # Activate ipywidgets extension in the environment that runs the notebook server
 RUN jupyter nbextension enable --py widgetsnbextension --sys-prefix
 
@@ -62,9 +65,6 @@ RUN rm -rf /home
 
 # smoke test entrypoint
 #RUN USER_ID=65000 USER=systemusertest HOME=/home/systemusertest sh /usr/local/bin/start-systemuser.sh -h && userdel systemusertest
-
-RUN cat /usr/bin/yes | pip install \
-   datascience okpy
 
 
 CMD ["sh", "/usr/local/bin/start-systemuser.sh"]
