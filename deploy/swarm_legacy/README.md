@@ -25,6 +25,8 @@ Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.do
       |4000	| tcp	| 172.31.0.0/16 |
       |8500| tcp	| 172.31.0.0/16 |
 
+2. Do the [NFS stuff](../nfs/README.md).
+
 2. Install Docker on a new manager or worker node.
    ```bash
    sudo yum update
@@ -42,6 +44,12 @@ Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.do
    ```bash
    cd && mkdir repos && cd repos
    git clone https://github.com/jamesfolberth/jupyterhub_AWS_deployment.git
+   ```
+
+   Build the notebook image
+   ```bash
+   cd ~/repos/jupyterhub_AWS_deployment/deploy/data8-notebook
+   ./build.sh
    ```
 
    If we're a manager, start with the `start_manager.sh` script.
