@@ -1,3 +1,5 @@
 *.default
 *.pyc
 deploy/userlist
+
+**/.ipynb_checkpoints
