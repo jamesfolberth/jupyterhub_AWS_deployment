@@ -1,5 +1,7 @@
 #!/bin/env python
 
+raise DeprecationWarning('Don''t use this script!')
+
 import os, os.path, re, pwd
 
 USERLIST='/srv/jupyterhub/userlist'

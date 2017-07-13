@@ -34,6 +34,7 @@ c.Authenticator.create_system_users = True
 # https://github.com/jupyterhub/jupyterhub/issues/696
 #c.Authenticator.add_user_cmd =  ['adduser', '--home', '/home/USERNAME']
 c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME'] # not yet
+#TODO JMF 16 May 2017: I've hacked around in my_oauthenticator.py.  Need to make this a bit more robust.
 
 c.Authenticator.whitelist = whitelist = set()
 c.Authenticator.admin_users = admin = set()
@@ -104,5 +105,6 @@ c.DockerSpawner.volumes = { '/mnt/nfs/home': '/home' }
 
 c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
 
-c.DockerSpawner.extra_host_config = {'mem_limit': '1g'}
+#c.DockerSpawner.extra_host_config = {'mem_limit': '1g'}
+#c.DockerSpawner.extra_host_config = {'mem_limit': '50m'}
 

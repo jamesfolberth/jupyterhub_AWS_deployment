@@ -37,7 +37,10 @@ def main(args):
 
     with open(USERLIST, 'r') as f:
         for i, line in enumerate(f):
-            email = line.split()[0]
+            if not line: continue
+            parts = line.split()
+            if not parts: continue
+            email = parts[0]
             if not email_re.match(email):
                 raise Warning('{} is not a vaild email'.format(email))
             
