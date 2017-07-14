@@ -1,6 +1,7 @@
 #!/bin/env python
 
-raise DeprecationWarning('Don''t use this script!')
+raise DeprecationWarning('Don''t use this script, because we now try to '
+    'automagically add the users and set up their accounts via JHub.')
 
 import os, os.path, re, pwd
 
