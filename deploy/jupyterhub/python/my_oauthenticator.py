@@ -48,6 +48,10 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
                 raise KeyError("User %s does not exist." % user.name)
         else:
             self.set_home_permissions(user)
+            #TODO JMF 16 May 2017: this is a bit of a hack
+            self.rsync_update(user.name, '/home/ec2-user/repos/jupyterhub_AWS_deployment/notebooks/', 'example_notebooks')
+
+
 
         yield gen.maybe_future(super().add_user(user))
 
