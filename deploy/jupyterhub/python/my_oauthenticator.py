@@ -68,6 +68,8 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
             raise RuntimeError("Failed to create system user %s: %s" % (name, err))
         
         #TODO JMF 16 May 2017: append user's email to userlist?
+        #     They'll be added to JHub's DB and the stuff to add them will be run again,
+        #     so it might not be necessary to do this here.
         #with open('/srv/jupyterhub/userlist', 'a') as f:
         #    myfile.write(user)
         
