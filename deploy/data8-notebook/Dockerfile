@@ -27,7 +27,8 @@ RUN conda install --quiet --yes \
     'matplotlib=2.0*' \
     'scipy=0.19*' \
     'scikit-learn=0.18*' \
-    'scikit-image=0.12*' && \
+    'scikit-image=0.12*' \
+    'easygui' && \
     conda remove --quiet --yes --force qt pyqt && \
     conda clean -tipsy
 
