@@ -32,7 +32,7 @@ RUN conda install --quiet --yes \
     conda clean -tipsy
 
 RUN cat /usr/bin/yes | pip install \
-   datascience okpy easygui
+   datascience okpy easygui IPython pydotplus numpy
 
 # Activate ipywidgets extension in the environment that runs the notebook server
 RUN jupyter nbextension enable --py widgetsnbextension --sys-prefix
