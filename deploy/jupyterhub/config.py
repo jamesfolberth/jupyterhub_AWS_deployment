@@ -11,6 +11,9 @@ ssl_dir = pjoin(runtime_dir, 'ssl')
 if not os.path.exists(ssl_dir):
     os.makedirs(ssl_dir)
 
+# put the logfile in /var/log/
+c.JupyterHub.extra_log_file = '/var/log/jupyterhub.log'
+
 c.JupyterHub.port = 8000
 c.JupyterHub.ssl_key = pjoin(ssl_dir, 'hub.key')
 c.JupyterHub.ssl_cert = pjoin(ssl_dir, 'hub.crt')
