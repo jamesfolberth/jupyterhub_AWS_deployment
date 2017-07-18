@@ -108,6 +108,6 @@ c.DockerSpawner.volumes = { '/mnt/nfs/home': '/home' }
 
 c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
 
-#c.DockerSpawner.extra_host_config = {'mem_limit': '1g'}
+c.DockerSpawner.extra_host_config = {'mem_limit': '1g'}
 #c.DockerSpawner.extra_host_config = {'mem_limit': '50m'}
 
