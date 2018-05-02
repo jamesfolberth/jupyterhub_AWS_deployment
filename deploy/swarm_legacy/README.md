@@ -38,7 +38,7 @@ Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.do
    logout
    ```
 
-   We logout and then back in to propogate the group change.
+   We logout and then back in to propagate the group change.
 
 3. Clone this repo:
    ```bash
@@ -65,23 +65,24 @@ Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.do
    ./start_worker.sh {LOCAL_IPv4_OF_MANAGER}
    ```
 
-4. Add the `userlist` to this worker:
-   ```bash
-   sudo mkdir -p /srv/jupyterhub
-   sudo chown -R ec2-user:ec2-user /srv/jupyterhub/
-   chmod -R 700 /srv/jupyterhub
-   ```
-
-   (From somewhere else) Copy over the userlist to this worker:
-   ```bash
-   scp userlist ec2-user@{WORKER_PUBLIC_IPv4}:/srv/jupyterhub/
-   ```
-
-   Add users using the script `add_users`:
-   ```bash
-   cd ~/repos/jupyterhub_AWS_deployment/deploy
-   sudo ./add_users
-   ```
+TODO JMF 1 May 2018: this is no longer necessary
+//4. Add the `userlist` to this worker:
+//   ```bash
+//   sudo mkdir -p /srv/jupyterhub
+//   sudo chown -R ec2-user:ec2-user /srv/jupyterhub/
+//   chmod -R 700 /srv/jupyterhub
+//   ```
+//
+//   (From somewhere else) Copy over the userlist to this worker:
+//   ```bash
+//   scp userlist ec2-user@{WORKER_PUBLIC_IPv4}:/srv/jupyterhub/
+//   ```
+//
+//   Add users using the script `add_users`:
+//   ```bash
+//   cd ~/repos/jupyterhub_AWS_deployment/deploy
+//   sudo ./add_users
+//   ```
 
 
 
