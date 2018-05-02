@@ -7,16 +7,16 @@ import os
 pjoin = os.path.join
 
 runtime_dir = os.path.join('/srv/jupyterhub')
-ssl_dir = pjoin(runtime_dir, 'ssl')
-if not os.path.exists(ssl_dir):
-    os.makedirs(ssl_dir)
+#ssl_dir = pjoin(runtime_dir, 'ssl')
+#if not os.path.exists(ssl_dir):
+#    os.makedirs(ssl_dir)
 
 # put the logfile in /var/log/
 c.JupyterHub.extra_log_file = '/var/log/jupyterhub.log'
 
 c.JupyterHub.port = 8000
-c.JupyterHub.ssl_key = pjoin(ssl_dir, 'hub.key')
-c.JupyterHub.ssl_cert = pjoin(ssl_dir, 'hub.crt')
+#c.JupyterHub.ssl_key = pjoin(ssl_dir, 'hub.key')
+#c.JupyterHub.ssl_cert = pjoin(ssl_dir, 'hub.crt')
 
 c.JupyterHub.cookie_secret_file = pjoin(runtime_dir, 'cookie_secret')
 c.JupyterHub.db_url = pjoin(runtime_dir, 'jupyterhub.sqlite')
@@ -61,6 +61,7 @@ with open(pjoin(runtime_dir, 'userlist')) as f:
 c.JupyterHub.ip = '127.0.0.1'
 #c.JupyterHub.ip = '0.0.0.0'
 c.JupyterHub.proxy_api_ip = '127.0.0.1'
+#ConfigurableHTTPProxy.api_url = '127.0.0.1'
 
 
 # Zonca + legacy swarm
