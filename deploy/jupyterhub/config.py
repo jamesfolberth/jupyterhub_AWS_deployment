@@ -36,7 +36,7 @@ c.Authenticator.create_system_users = True
 # Doesn't work for us.
 # https://github.com/jupyterhub/jupyterhub/issues/696
 #c.Authenticator.add_user_cmd =  ['adduser', '--home', '/home/USERNAME']
-c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/USERNAME'] # not yet
+c.Authenticator.add_user_cmd =  ['adduser', '--home', '/mnt/nfs/home/{username}'] # not yet
 #TODO JMF 16 May 2017: I've hacked around in my_oauthenticator.py.  Need to make this a bit more robust.
 
 c.Authenticator.whitelist = whitelist = set()
@@ -69,7 +69,8 @@ c.JupyterHub.proxy_api_ip = '127.0.0.1'
 os.environ["DOCKER_HOST"] = ":4000"
 
 c.JupyterHub.spawner_class = 'dockerspawner.SystemUserSpawner'
-c.DockerSpawner.container_image = 'data8-notebook'
+c.DockerSpawner.image = 'data8-notebook'
+#c.DockerSpawner.image = 'jupyter/minimal-notebook'
 
 ## Remove containers once they are stopped
 c.Spawner.remove_containers = True
@@ -104,11 +105,12 @@ c.DockerSpawner.hub_ip_connect = c.JupyterHub.hub_ip
 
 
 # Mount the real user's Docker volume on the host to the notebook user's
-# notebook directory in the container.  Mount all of NFS home
+# notebook directory in the container.  Mount all of NFS home, including all of the
+# other user's homedirs (read-only from UNIX permissions)
 c.DockerSpawner.volumes = { '/mnt/nfs/home': '/home' }
 
 c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
 
-c.DockerSpawner.extra_host_config = {'mem_limit': '1g'}
-#c.DockerSpawner.extra_host_config = {'mem_limit': '50m'}
+#c.DockerSpawner.extra_host_config = {'mem_limit': '1g'}
+c.DockerSpawner.extra_host_config = {'mem_limit': '50m'}
 

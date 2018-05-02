@@ -58,7 +58,7 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
         Tested to work on FreeBSD and Linux, at least.
         """
         name = user.name
-        cmd = [ arg.replace('USERNAME', name) for arg in self.add_user_cmd ] + [name]
+        cmd = [ arg.format(username=name) for arg in self.add_user_cmd ] + [name]
         self.log.info("Creating user: %s", ' '.join(map(pipes.quote, cmd)))
         self.log.info("in a subclass")
         p = Popen(cmd, stdout=PIPE, stderr=STDOUT)
