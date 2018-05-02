@@ -42,8 +42,14 @@
    * Install a bunch of packages from the system repos.
       ```bash
       sudo yum update
-      sudo yum install python34 python34-pip python34-devel git docker gcc gcc-c++
+      sudo yum install python36 python36-pip python36-devel git docker gcc gcc-c++
       sudo service docker start
+      ```
+
+   * Clone this repo
+      ```bash
+      cd && mkdir repos && cd repos
+      git clone https://github.com/jamesfolberth/jupyterhub_AWS_deployment.git
       ```
 
    * Add `ec2-user` to the Docker group, so we don't have to `sudo` every time we want to run a Docker container.
@@ -82,9 +88,9 @@
 
    * Install python packages with `pip`.
      ```bash
-     sudo pip-3.4 install jupyterhub
-     sudo pip-3.4 install --upgrade notebook
-     sudo pip-3.4 install oauthenticator dockerspawner
+     sudo pip-3.6 install jupyterhub
+     sudo pip-3.6 install --upgrade notebook
+     sudo pip-3.6 install oauthenticator dockerspawner
      ```
 
 3a. Generate a self-signed SSL certificate, if you don't have a domain name to use.

@@ -23,20 +23,20 @@ TODO JMF 14 May 2017: We don't need both 1 and 2.
    cd && cd repos
    git clone https://github.com/letsencrypt/letsencrypt
    cd letsencrypt
-   ./letsencrypt-auto certonly --standalone -v -d jamesfolberth.org --debug # need debug on Amazon Linux
+   sudo ./letsencrypt-auto certonly --standalone -v -d hub.jamesfolberth.org --debug # need debug on Amazon Linux
    ```
 
-2. Prove that we have control of our server with the EFF's [certbot](https://certbot.eff.org/#centosrhel6-nginx)
-   ```bash
-   cd && cd downloads
-   wget https://dl.eff.org/certbot-auto
-   chmod a+x certbot-auto
-   ./certbot-auto certonly --standalone -d jamesfolberth.org --debug # need debug on Amazon Linux
-   ```
+//2. Prove that we have control of our server with the EFF's [certbot](https://certbot.eff.org/#centosrhel6-nginx)
+//   ```bash
+//   cd && cd downloads
+//   wget https://dl.eff.org/certbot-auto
+//   chmod a+x certbot-auto
+//   sudo ./certbot-auto certonly --standalone -d hub.jamesfolberth.org --debug # need debug on Amazon Linux
+//   ```
 
 3. Generate D-H parameters
    ```bash
-   sudo openssl dhparam -out /etc/letsencrypt/live/jamesfolberth.org/dhparams.pem 2048
+   sudo openssl dhparam -out /etc/letsencrypt/live/hub.jamesfolberth.org/dhparams.pem 2048
    ```
 
 
