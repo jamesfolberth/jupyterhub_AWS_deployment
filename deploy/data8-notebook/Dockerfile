@@ -14,8 +14,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-USER $NB_USER
-
 # Install Python 3 packages
 # Remove pyqt and qt pulled in for matplotlib since we're only ever going to
 # use notebook-friendly backends in these images
@@ -46,25 +44,10 @@ ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
 RUN mkdir -p $HOME/.ipython/profile_default/startup
 COPY mplimporthook.py $HOME/.ipython/profile_default/startup/
 
-# From https://github.com/jupyterhub/dockerspawner/blob/master/systemuser/Dockerfile
-USER root
-
 WORKDIR /home
-RUN userdel jovyan && rm -rf /home/jovyan
+RUN rm -rf /home/jovyan
 ENV SHELL /bin/bash
 
-#while waiting for PR in jupyter/docker-stacks, keep the same naming conventions
-ADD systemuser.sh /usr/local/bin/start-systemuser.sh
-
-#RUN mkdir /home/jamesfolberth
 # we will map 0.0.0.0:32XXX->8888/tcp
 EXPOSE 8888 
 
-WORKDIR /
-RUN rm -rf /home
-
-# smoke test entrypoint
-#RUN USER_ID=65000 USER=systemusertest HOME=/home/systemusertest sh /usr/local/bin/start-systemuser.sh -h && userdel systemusertest
-
-
-CMD ["sh", "/usr/local/bin/start-systemuser.sh"]
