@@ -52,6 +52,14 @@ Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.do
    ./build.sh
    ```
 
+   Alternatively, you can pull the latest version of data8-notebook from Docker hub.
+   ```bash
+   cd ~/repos/jupyterhub_AWS_deployment/deploy/data8-notebook
+   ./pull.sh
+   ```
+   This will pull jamesfolberth/data8-notebook:latest and tag it as data8-notebook.
+
+
    If we're a manager, start with the `start_manager.sh` script.
    ```bash
    cd ~/repos/jupyterhub_AWS_deployment/deploy/docker_swarm
