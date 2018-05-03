@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 raise DeprecationWarning('Don''t use this script, because we now try to '
     'automagically add the users and set up their accounts via JHub.')

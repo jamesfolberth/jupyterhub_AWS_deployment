@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 # Make sure only root can run our script
 if [[ $EUID -ne 0 ]]; then

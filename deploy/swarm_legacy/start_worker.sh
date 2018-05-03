@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 #JMF: this doesn't seem to have an effect... change OPTIONS in /etc/sysconfig/docker
 #export DOCKER_OPTS="-H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"

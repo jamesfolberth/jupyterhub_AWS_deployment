@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 CWD=`pwd`
 if [ -z "$PYTHONPATH" ]; then

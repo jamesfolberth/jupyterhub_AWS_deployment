@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 # Get the local IP for this EC2 instance
 local_ip=`ec2-metadata --local-ipv4 | sed -ne 's/local-ipv4: //p'`

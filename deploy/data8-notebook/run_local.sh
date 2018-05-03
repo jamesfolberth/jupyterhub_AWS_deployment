@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 # Run our data8-notebook container locally.
 # In the container, we use they jovyan user, but set the UID and GID to the

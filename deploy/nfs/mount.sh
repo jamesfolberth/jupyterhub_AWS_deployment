@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 if [ -z $1 ]; then
    echo "Error: Pass in local IP or DN of main NFS node (EFS) as first argument"
