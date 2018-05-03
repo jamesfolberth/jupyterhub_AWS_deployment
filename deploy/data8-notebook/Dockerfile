@@ -19,13 +19,15 @@ RUN apt-get update && \
 # use notebook-friendly backends in these images
 RUN conda install --quiet --yes \
     'nomkl' \
-    'ipywidgets=6.0*' \
-    'pandas=0.19*' \
-    'numexpr=2.6*' \
-    'matplotlib=2.0*' \
-    'scipy=0.19*' \
-    'scikit-learn=0.18*' \
-    'scikit-image=0.12*' && \
+    'ipywidgets' \
+    'pandas' \
+    'numexpr' \
+    'matplotlib' \
+    'scipy' \
+    'tensorflow' \
+    'keras' \
+    'scikit-learn' \
+    'scikit-image' && \
     conda remove --quiet --yes --force qt pyqt && \
     conda clean -tipsy
 

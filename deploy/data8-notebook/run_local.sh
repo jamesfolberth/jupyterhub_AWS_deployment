@@ -14,5 +14,5 @@ repo_base=`realpath \`pwd\`/../..`
 docker run -it --rm -e USER=$user -e NB_UID=$uid -e NB_GID=$gid -e HOME=$HOME \
   -p 8888:8888\
   --volume $repo_base:/home\
-  data8-notebook
+  data8-notebook $1
 
