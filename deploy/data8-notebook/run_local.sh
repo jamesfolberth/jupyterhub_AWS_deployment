@@ -11,6 +11,11 @@ uid=`id -u $USER`
 gid=`id -g $USER`
 repo_base=`realpath \`pwd\`/../..`
 
+if [[ $EUID -eq 0 ]]; then
+    echo "Don't run this script as root.  Add your personal user to the docker group and run with your personal user." 1>&2
+    exit 1
+fi
+
 docker run -it --rm -e USER=$user -e NB_UID=$uid -e NB_GID=$gid -e HOME=$HOME \
   -p 8888:8888\
   --volume $repo_base:/home\
