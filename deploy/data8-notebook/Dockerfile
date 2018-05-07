@@ -46,10 +46,36 @@ ENV XDG_CACHE_HOME /home/$NB_USER/.cache/
 RUN mkdir -p $HOME/.ipython/profile_default/startup
 COPY mplimporthook.py $HOME/.ipython/profile_default/startup/
 
+
+
+COPY extra_repo.list /etc/apt/sources.list.d/
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends protobuf-compiler
+
+RUN cat /usr/bin/yes | pip install \
+    Cython pillow lxml
+
+# If we're interested in running the COCO metrics
+#RUN mkdir /home/repos && cd /home/repos && \
+#    git clone https://github.com/cocodataset/cocoapi.git && \
+#    cd cocoapi/PythonAPI && \
+#    make -j 4 &&\
+#    TODO
+
+RUN mkdir /home/repos && cd /home/repos &&\
+    git clone https://github.com/tensorflow/models.git &&\
+    cd models/research &&\
+    protoc object_detection/protos/*.proto --python_out=. &&\
+    cp -r object_detection /opt/conda/lib/python3.6/site-packages
+
+RUN chown -R $NB_UID /home/repos
+
+
 WORKDIR /home
-RUN rm -rf /home/jovyan
+#RUN rm -rf /home/jovyan
 ENV SHELL /bin/bash
 
 # we will map 0.0.0.0:32XXX->8888/tcp
 EXPOSE 8888 
+
 
