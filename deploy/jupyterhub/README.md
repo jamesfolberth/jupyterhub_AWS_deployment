@@ -1,5 +1,11 @@
 # Jupyterhub Instance
-1. Starting the hub VM
+
+The Jupyterhub instance will run Jupyterhub behind nginx, which we will use as a proxy server.
+It will also run the Docker Swarm manager (container), which will connect Jupyterhub to the worker nodes.
+For now, let's get the server (an AWS EC2 instance) up and running, and install Jupyterhub.
+
+
+1. Starting the hub/webserver/Swarm manager instance
    * We developed and tested the config files on a t2.micro instance.
      For deployment, we'll probably want a larger instance for the hub, especially if it will also run a few notebook containers.
      We used a standard 64-bit Amazon Linux AMI.
@@ -10,13 +16,12 @@
      We create a security group called "Jupyterhub" with the following allowed ports to the outside world:
 
     |Ports |	Protocol	| Source |
-    |------|----------|--------|
-    |22	| tcp	| 0.0.0.0/0, ::/0 |
-    |80	| tcp	| 0.0.0.0/0, ::/0 |
-    |443	| tcp	| 0.0.0.0/0, ::/0 |
+    |------|----------------|--------|
+    |22	   | tcp	| 0.0.0.0/0, ::/0 |
+    |80	   | tcp	| 0.0.0.0/0, ::/0 |
+    |443   | tcp	| 0.0.0.0/0, ::/0 |
 
      For inside the VPC only, we add the following ports to allow the hub API and connect to the notebooks on remote nodes.
-     Since we're inside a VPC (i.e., closed off from the outside world except for the above ports), I think we could instead just enable all ports 0-65536 for 172.31.0.0/16.
 
     |Ports |	Protocol	| Source |
     |------|----------|--------|
@@ -24,7 +29,11 @@
     |32000-33000| tcp	| 172.31.0.0/16 |
 
     Later on we'll use this node as a Docker swarm manager, which will require a few more open ports inside the VPC.
-    See TODO for details.
+    See [Docker Swarm manager and workers](../swarm_legacy/README.md) for details.
+
+    Since we're inside a VPC (i.e., closed off from the outside world except for the above ports), we can instead just enable all ports 0-65536 for 172.31.0.0/16, which is the CIDR of the default VPC.
+    This is probably the most convenient route to take, so we won't have to worry about opening ports later.
+
 
 2. Install a bunch of packages
    * To connect to the new instance, you'll need your SSH key (if it's your first time, you'll need AWS to generate one for you).
@@ -41,8 +50,8 @@
 
    * Install a bunch of packages from the system repos.
       ```bash
-      sudo yum update
-      sudo yum install python36 python36-pip python36-devel git docker gcc gcc-c++
+      sudo yum update -y
+      sudo yum install -y python36 python36-pip python36-devel git docker gcc gcc-c++
       sudo service docker start
       ```
 
@@ -62,7 +71,9 @@
 
    * Verify docker works with `docker run hello-world`.
 
-   * Download Node.js and npm.  You may want to visit [nodejs.org](https://nodejs.org/en/download/) to get a different version.
+   * Download Node.js, which provides npm.
+     You probably  want to visit [nodejs.org](https://nodejs.org/en/download/) to get the latest LTS version.
+
      ```bash
      cd && mkdir downloads && cd downloads
 
@@ -74,14 +85,9 @@
      sudo cp -r lib/* /usr/lib/
      sudo cp -r share/* /usr/share/
      cd ..
-
-     wget https://npmjs.org/install.sh
-     chmod +x install.sh
-     sudo ./install.sh
-     cd ..
      ```
 
-   * Install [configurable-http-proxy](https://github.com/jupyterhub/configurable-http-proxy).
+   * Install [configurable-http-proxy](https://github.com/jupyterhub/configurable-http-proxy), which is needed by Jupyterhub.
      ```bash
      sudo npm install -g configurable-http-proxy
      ```
@@ -93,14 +99,18 @@
      sudo pip-3.6 install oauthenticator dockerspawner
      ```
 
-3a. Generate a self-signed SSL certificate, if you don't have a domain name to use.
-    A self-signed cert is quite okay for testing/development, but your browser will probably warn you about the cert when you navigate to your page.
+3. Generate an SSL certificate
+
+    a. Generate a self-signed SSL certificate, assuming you don't have a domain name to use.
+        A self-signed cert is quite okay for testing/development, but your browser will probably warn you about the cert when you navigate to your page.
+
     ```bash
     sudo mkdir /srv/jupyterhub/ssl
     sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /srv/jupyterhub/ssl/hub.key -out /srv/jupyterhub/ssl/hub.crt
     ```
 
-3b. If you do have a domain to use, see the [README](../nginx/README.md) in the `nginx` directory to generate SSL/TLS certs using [Let's Encrypt](https://letsencrypt.org/), set up routing to your domain (and the subdomain `hub.example.com`), and install and configure `nginx` to serve static HTML and proxy to the hub.
+    b. If you do have a domain to use, see the [README](../nginx/README.md) in the `nginx` directory to generate SSL/TLS certs using [Let's Encrypt](https://letsencrypt.org/), set up routing to your domain (and the subdomain `hub.example.com`), and install and configure `nginx` to serve static HTML and proxy to the hub.
+
 
 4. Register the project with Google OAuth 2.0
    We want to use Google's authentication system for our project.
