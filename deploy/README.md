@@ -23,6 +23,8 @@ Use the IAM user to do all the actual work: launching instances, configuring thi
 
 ## Setting up the instances
 
+TODO JMF 22 May 2018: note about use of `example.com`
+
 1. [Set up manager instance and Jupyterhub](jupyterhub/README.md)
 2. [Proxy server](nginx/README.md)
 3. [Docker Swarm manager and workers](swarm_legacy/README.md)

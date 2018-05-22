@@ -1,5 +1,5 @@
 # Setting up Webserver Stuff
-We want to serve static webpages from `jamesfolberth.org` and the hub from `hub.jamesfolberth.org`.
+We want to serve static webpages from `example.com` and the hub from `hub.example.com`.
 The configuration files in this directory set this up.
 We expect to have ports 22, 80, and 443 open.
 If the user goes to either site over HTTP, we redirect them to port 443 to use HTTPS.
@@ -10,38 +10,31 @@ We then register a domain name and set up routing, including to the subdomain.
 Finally, we install and configure `nginx`.
 
 
-## SSL/TLS certificate with Let's Encrypt
-This is assuming we're generating certs for `jamesfolberth.org`.
-This will obviously be different for your site.
-We're going to use `jamesfolberth.org` to serve static HTML pages, and `hub.jamesfolberth.org` for Jupyterhub, so we'll actually do this twice.
-The certs we generate are output to `/etc/letsencrypt/live/`
+TODO JMF 22 May 2018: mention that user should change `example.com` in conf files
 
-TODO JMF 14 May 2017: We don't need both 1 and 2.
+
+## SSL/TLS certificate with Let's Encrypt
+This is assuming we're generating certs for `example.com`.
+This will obviously be different for your site.
+We're going to use `example.com` to serve static HTML pages, and `hub.example.com` for Jupyterhub, so we'll actually do this twice.
+The certs we generate are output to `/etc/letsencrypt/live/`
 
 1. Generate an SSL/TLS key with [Let's Encrypt](https://letsencrypt.org/).
    ```bash
    cd && cd repos
    git clone https://github.com/letsencrypt/letsencrypt
    cd letsencrypt
-   sudo ./letsencrypt-auto certonly --standalone -v -d hub.jamesfolberth.org --debug # need debug on Amazon Linux
+   sudo ./letsencrypt-auto certonly --standalone -v -d hub.example.com --debug # need debug on Amazon Linux
    ```
 
-//2. Prove that we have control of our server with the EFF's [certbot](https://certbot.eff.org/#centosrhel6-nginx)
-//   ```bash
-//   cd && cd downloads
-//   wget https://dl.eff.org/certbot-auto
-//   chmod a+x certbot-auto
-//   sudo ./certbot-auto certonly --standalone -d hub.jamesfolberth.org --debug # need debug on Amazon Linux
-//   ```
-
-3. Generate D-H parameters
+2. Generate D-H parameters
    ```bash
-   sudo openssl dhparam -out /etc/letsencrypt/live/hub.jamesfolberth.org/dhparams.pem 2048
+   sudo openssl dhparam -out /etc/letsencrypt/live/hub.example.com/dhparams.pem 2048
    ```
 
 
 ## Set up domain name and routing
-2. We used Amazon [Route 53](https://aws.amazon.com/route53/) to register the domain name `jamesfolberth.org`.
+1. We used Amazon [Route 53](https://aws.amazon.com/route53/) to register the domain name `example.com`.
    We also create a new [Elastic IP](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html) and associate it with the EC2 instance running the hub and `nginx`.
    For now, the Jupyterhub instance will run the hub as well as serve static HTML, so we set up hosted zones to point to the elastic IP we allocated for the hub instance.
    We can change that later, though.
@@ -49,14 +42,14 @@ TODO JMF 14 May 2017: We don't need both 1 and 2.
    To point our domain (and subdomain) to the right IP, we need to set up a couple hosted zones.
    We follow the instructions [here](https://aws.amazon.com/premiumsupport/knowledge-center/create-subdomain-route-53/) to set up the subdomain.
 
-3. Set up a hosted zone to route to `jamesfolberth.org`.
+3. Set the hosted zone to route to `example.com`.
    1. Sign in to the [Route 53](https://console.aws.amazon.com/route53/home) console and click the "Hosted zones" from the navigation pane on the left.
-   2. Click "Create Hosted Zone".
-   3. Enter the following information into the corresponding fields and create the hosted zone:
-      * For Domain Name, type your domain name (`jamesfolberth.org`).
+      This assumes you already have a hosted zone that was created when you registered your domain with Route 53.
+   2. Enter the following information into the corresponding fields and create the hosted zone:
+      * For Domain Name, type your domain name (`example.com`).
       * For Comment, type text that describes what the subdomain does or is for.
       * For Type, choose Public.
-   4. Click "Create Record Set" to point the domain to the elastic IP allocatd earlier.
+   3. Click "Create Record Set" to point the domain to the elastic IP allocatd earlier.
       * Leave "Name" blank, since we're going to set up the base domain.
       * Leave "Type" as "A - IPv4 address"
       * Leave time to live (TTL) as 300 seconds
@@ -64,17 +57,7 @@ TODO JMF 14 May 2017: We don't need both 1 and 2.
       * "Routing Policy" can be "Simple".
       * Click "Create"
 
-4. Set up a hosted zone to route to `hub.jamesfolberth.org`.
-   1. Follow the instructions above to setup a new hosted zone for `hub.jamesfolberth.org`.
-      For now, the hub and `nginx` are running on the same instance, so use the same elastic IP as earlier.
-   2. Click on the hub hosted zone and copy the name server (NS) addresses.
-   3. On the base domain hosted zone (`jamesfolberth.org`), create a new record set
-      * Set "Name" to "hub" (i.e., set up roting to `hub.jamesfolberth.org`)
-      * Change "Type" to "NS - Name server"
-      * Leave time to live (TTL) as 300 seconds
-      * For "Value", enter the name servers for the hub hosted zone.
-      * "Routing Policy" can be "Simple".
-      * Click "Create"
+4. Repeat step 3. for `hub.example.com`, using the same hosted zone.
 
 
 ## Setting up nginx
