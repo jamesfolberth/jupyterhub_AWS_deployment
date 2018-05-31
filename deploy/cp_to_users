@@ -17,9 +17,9 @@ def user_exist(username):
 def ensure_home_owner(username):
     home = os.path.join(HOME_BASE, username)
     try:
+        print 'Changing owner/permissions for user {} home {}.'.format(username, home)
         os.system('chown -R {username}:{username} {home}'.format(username=username, home=home))
         os.system('chmod 755 -R {}'.format(home))
-        print 'Changing owner/permissions for user {} home {}.'.format(username, home)
     except:
         raise Warning('Changing owner/permissions for user {} home {} failed!'.format(username, home))
 
@@ -27,6 +27,7 @@ def rsync_update(username, indir, name):
     home = os.path.join(HOME_BASE, username)
     outdir = os.path.join(home, name)
     try:
+        print 'rsyncing {indir}\n      => {outdir}'.format(indir=indir, outdir=outdir)
         os.system('rsync -ru {indir} {outdir}'.format(
             indir=indir, outdir=outdir))
     except:
@@ -34,7 +35,8 @@ def rsync_update(username, indir, name):
 
 def main(args):
     email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
-
+    
+    print 'Using usernames in userlist={0}'.format(USERLIST)
     with open(USERLIST, 'r') as f:
         for i, line in enumerate(f):
             if not line: continue
@@ -52,6 +54,8 @@ def main(args):
                 ensure_home_owner(username) 
             else:
                 print "User {} doesn't exist!".format(username)
+            
+            print
                 
 if __name__ == '__main__':
     #Clone the input directory into each user''s home dir
