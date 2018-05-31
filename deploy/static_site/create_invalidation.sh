@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-. env
+. aws_env
 
 # Invalidate the edge caches.
 # You get 1000 free invalidation paths per month, where a path could be

@@ -4,7 +4,7 @@
 # https://aws.amazon.com/premiumsupport/knowledge-center/authenticate-mfa-cli/
 # https://stackoverflow.com/questions/1955505/parsing-json-with-unix-tools
 
-. env
+. aws_env
 
 if [ ! $# -eq 1 ]
 then

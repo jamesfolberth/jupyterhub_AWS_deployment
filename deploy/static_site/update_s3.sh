@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. env
+. aws_env
 
 aws s3 sync jekyll_deploy s3://${S3_BUCKET_NAME} --delete
 
