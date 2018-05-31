@@ -7,6 +7,9 @@ locale: en_US
 # url is currently only used only for the RSS feed in feed.xml
 url: https://custemcamp.org
 
+# Used internally to redirect to JHub
+huburl: https://hub.custemcamp.org
+
 # Used internally to switch between Chinese and English
 # We just need English
 lan: en
@@ -17,8 +20,6 @@ lan: en
 #  archive: "%b"
 #  categories: "%b-%Y"
 #  tag: "%b-%Y"
-# Language
-lan: "en" 
 
 paginate: 10
 
