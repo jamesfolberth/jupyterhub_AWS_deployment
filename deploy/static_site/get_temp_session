@@ -4,13 +4,15 @@
 # https://aws.amazon.com/premiumsupport/knowledge-center/authenticate-mfa-cli/
 # https://stackoverflow.com/questions/1955505/parsing-json-with-unix-tools
 
+. env
+
 if [ ! $# -eq 1 ]
 then
-    echo "Error: Enter MFA code for IAM user \"james\" as first argument."
+    echo "Error: Enter MFA code for $IAM_USER@$IAM_ID as first argument."
     return 22
 fi
 
-session_info=`aws --profile james sts get-session-token --serial-number arn:aws:iam::969649941851:mfa/james --token-code $1 --duration-seconds=14400 --output json`
+session_info=`aws --profile $IAM_USER sts get-session-token --serial-number arn:aws:iam::$IAM_ID:mfa/$IAM_USER --token-code $1 --duration-seconds=14400 --output json`
 exit_status=$?
 echo -e "$session_info"
 
