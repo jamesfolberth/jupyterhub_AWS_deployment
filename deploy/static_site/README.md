@@ -49,11 +49,11 @@ Additionally, this will allow us to use HTTPS (and redirect HTTP to HTTPS).
     1. Click "Create Record Set" to point `example.com` to the CloudeFront domain.
         * Leave "Name" blank, since we're going to set up the base domain.
         * Leave "Type" as "A - IPv4 address"
-        * Leave time to live (TTL) as 300 seconds
-        * For "Value", enter the domain name of the CloudFront distribution.
+        * Set "Alias" to "Yes"
+        * Select your CloudFront distribution
         * "Routing Policy" can be "Simple".
         * Click "Create"
-    2. Repeat 1. for "Type" as "AAAA - IPv6 address".
+    2. Repeat 1. for "Type" as "AAAA - IPv4 address"
     3. Repeat 1. and 2. for `www.example.com`.
 
 
