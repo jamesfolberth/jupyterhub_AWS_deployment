@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Since my IAM user has MFA enabled, make a temp session to use
+# https://aws.amazon.com/premiumsupport/knowledge-center/authenticate-mfa-cli/
+# https://stackoverflow.com/questions/1955505/parsing-json-with-unix-tools
+
+if [ ! $# -eq 1 ]
+then
+    echo "Error: Enter MFA code for IAM user \"james\" as first argument."
+    return 22
+fi
+
+session_info=`aws --profile james sts get-session-token --serial-number arn:aws:iam::969649941851:mfa/james --token-code $1 --duration-seconds=14400 --output json`
+exit_status=$?
+echo -e "$session_info"
+
+if [ ! $exit_status -eq 0 ]
+then
+    return $exit_status
+fi
+
+
+temp_key_id=`echo $session_info | python -c "import sys, json; print(json.load(sys.stdin)['Credentials']['AccessKeyId'])"`
+temp_secret_key=`echo $session_info | python -c "import sys, json; print(json.load(sys.stdin)['Credentials']['SecretAccessKey'])"`
+temp_session_token=`echo $session_info | python -c "import sys, json; print(json.load(sys.stdin)['Credentials']['SessionToken'])"`
+
+export AWS_ACCESS_KEY_ID=$temp_key_id
+export AWS_SECRET_ACCESS_KEY=$temp_secret_key
+export AWS_SESSION_TOKEN=$temp_session_token
+
