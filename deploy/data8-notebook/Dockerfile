@@ -62,14 +62,25 @@ RUN cat /usr/bin/yes | pip install \
 #    make -j 4 &&\
 #    TODO
 
-RUN mkdir /home/repos && cd /home/repos &&\
-    git clone https://github.com/tensorflow/models.git &&\
-    cd models/research &&\
+#RUN mkdir /home/repos && cd /home/repos &&\
+#    git clone https://github.com/tensorflow/models.git &&\
+#    cd models/research &&\
+#    protoc object_detection/protos/*.proto --python_out=. &&\
+#    cp -r object_detection /opt/conda/lib/python3.6/site-packages
+
+# before building `git clone https://github.com/tensorflow/models.git tf_models`
+RUN mkdir -p /home/repos/tensorflow_models
+COPY tensorflow_models /home/repos/tensorflow_models
+RUN cd /home/repos/tensorflow_models/research &&\
     protoc object_detection/protos/*.proto --python_out=. &&\
     cp -r object_detection /opt/conda/lib/python3.6/site-packages
 
 RUN chown -R $NB_UID /home/repos
 
+RUN mkdir -p /data/FastText
+COPY FastText/ /data/FastText
+
+RUN chown -R $NB_UID /data
 
 WORKDIR /home
 #RUN rm -rf /home/jovyan
