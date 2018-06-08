@@ -24,6 +24,7 @@ notebook_base=$repo_base/notebooks
 
 docker run -it --rm -e USER=$user -e NB_UID=$uid -e NB_GID=$gid -e HOME=$HOME \
   -p 8888:8888\
+  -m 2G\
   --volume $notebook_base:/home/notebooks\
   data8-notebook $1
 

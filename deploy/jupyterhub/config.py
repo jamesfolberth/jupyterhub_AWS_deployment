@@ -99,6 +99,6 @@ c.SystemUserSpawner.host_homedir_format_string = '/mnt/nfs/home/{username}'
 #     Our previous data8 image used
 #     --NotebookApp.iopub_data_rate_limit=1000000000
 #     in $NOTEBOOK_ARGS, which was passed to the Jupyter server.
-c.DockerSpawner.extra_host_config = {'mem_limit': '1g',
+c.DockerSpawner.extra_host_config = {'mem_limit': '2g',
                                      }
 
