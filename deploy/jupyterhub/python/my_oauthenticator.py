@@ -11,6 +11,7 @@ import re
 from shutil import which
 import sys
 from subprocess import Popen, PIPE, STDOUT
+import shlex
 
 from tornado import gen
 import pamela
@@ -46,8 +47,7 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
                 yield gen.maybe_future(self.add_system_user(user))
             else:
                 raise KeyError("User %s does not exist." % user.name)
-        else:
-            self.set_home_permissions(user)
+        else: self.set_home_permissions(user)
 
         yield gen.maybe_future(super().add_user(user))
 
@@ -84,7 +84,6 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
         try:
             home = '/mnt/nfs/home/{username}'.format(username=user.name)
             os.system('chown -R {username}:{username} {home}'.format(username=user.name, home=home))
-            os.system('chmod 755 -R {}'.format(home))
             self.log.info('Changed permissions for user {} (home={})'.format(user.name, home))
         except Exception as e: # what's the right Exception?
             print(e)
@@ -98,7 +97,39 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
             self.log.info("rsync-ing notebook directory to {user}'s home".format(user=username))
             os.system('rsync -ru {indir} {outdir}'.format(
                 indir=indir, outdir=outdir))
+            
+            make_notebooks_readonly(indir, outdir)
+
         except:
             raise Warning('Failded to copy files to ')
+
+
+def make_notebooks_readonly(indir, outdir):
+    """
+    chmod -w all notebooks that have been copied into the user's home directory.
+    This will force them to duplicate the notebook to work on it (when you duplicate
+    a notebook in Jupyter, it will give it 'rw' permissions for your user).
+    
+    The goal of this is to allow us to safely use our stoopid rsync to update
+    notebooks in-place in user's home directories.
+    """
+    print('doing a stupid chmod -w thing for notebook files')
+
+    nb_matcher = re.compile(r'.*.ipynb')
+    
+    # Get relative path of all notebook files in indir
+    indir_notebooks = []
+    for root, dirs, files in os.walk(indir):
+        indir_notebooks.extend(os.path.relpath(os.path.join(root, f), indir) for f in files if nb_matcher.match(f))
+    
+    # Call chmod -w on those same files in the output directory
+    outdir_notebooks = map(lambda f: os.path.join(outdir, f), indir_notebooks)
+    try:
+                                                   # https://stackoverflow.com/a/35857/9291478
+        cmd = 'chmod -w ' + ' '.join(map(lambda f: shlex.quote(f), outdir_notebooks))
+        os.system(cmd)
+
+    except:
+        raise Warning('stupid chmod -w failed')
 
 
