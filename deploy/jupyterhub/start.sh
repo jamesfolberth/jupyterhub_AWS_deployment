@@ -34,7 +34,7 @@ done
 #   echo "Using EC2_PUBLIC_HOSTNAME=$EC2_PUBLIC_HOSTNAME"
 #fi
 #export OAUTH_CALLBACK_URL=https://${EC2_PUBLIC_HOSTNAME}:8443/hub/oauth_callback
-export OAUTH_CALLBACK_URL=https://hub.jamesfolberth.org/hub/oauth_callback
+export OAUTH_CALLBACK_URL=https://hub.example.com/hub/oauth_callback
 
 # -E preserves environment variables (except not PATH, PYTHONPATH, etc.)
 jhub_bin=`which jupyterhub`

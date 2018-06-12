@@ -6,19 +6,25 @@
 # the container, they appear to be from the system user.  We also mount the
 # base path of the repo as the home directory in the container.
 
+if [[ $EUID -eq 0 ]]; then
+    echo "Don't run this script as root.  Add your personal user to the docker group and run with your personal user." 1>&2
+    exit 1
+fi
+
+if [[ ! `which realpath` ]]; then
+    echo "Install `realpath`."
+    exit 1
+fi
+
 user=$USER
 uid=`id -u $USER`
 gid=`id -g $USER`
 repo_base=`realpath \`pwd\`/../..`
 notebook_base=$repo_base/notebooks
 
-if [[ $EUID -eq 0 ]]; then
-    echo "Don't run this script as root.  Add your personal user to the docker group and run with your personal user." 1>&2
-    exit 1
-fi
-
 docker run -it --rm -e USER=$user -e NB_UID=$uid -e NB_GID=$gid -e HOME=$HOME \
-  -p 10000:8888\
+  -p 8888:8888\
+  -m 2G\
   --volume $notebook_base:/home/notebooks\
   data8-notebook $1
 

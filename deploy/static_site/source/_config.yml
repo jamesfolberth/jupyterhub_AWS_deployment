@@ -1,0 +1,30 @@
+# Jekyll configuration
+
+name: STEM Summer Camp - Machine Learning Track
+description: Welcome to the Machine Learning page for the STEM Summer Camp
+locale: en_US
+
+# url is currently only used only for the RSS feed in feed.xml
+url: https://custemcamp.org
+
+# Used internally to redirect to JHub
+huburl: https://hub.custemcamp.org
+
+# Used internally to switch between Chinese and English
+# We just need English
+lan: en
+
+## default date_format
+#date_format:
+#  title: "%B-%-d-%Y"
+#  archive: "%b"
+#  categories: "%b-%Y"
+#  tag: "%b-%Y"
+
+paginate: 10
+
+highlighter: rouge
+markdown: kramdown
+plugins: ['jekyll-paginate']
+
+exclude: ['README.md', 'LICENSE', "*.bak", "vendor", "Gemfile*"]
