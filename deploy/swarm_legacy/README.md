@@ -31,7 +31,8 @@ Documentation for <i>legacy</i> Docker swarm can be found [here](https://docs.do
 2. Install Docker on a new manager or worker node.
    ```bash
    sudo yum -y update
-   sudo yum -y install docker git
+   curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | sudo bash
+   sudo yum -y install docker git git-lfs
    sudo vim /etc/sysconfig/docker
       # Add OPTIONS = "...  -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"
    sudo service docker start

@@ -60,7 +60,8 @@ For now, let's get the server (an AWS EC2 instance) up and running, and install 
    * Install a bunch of packages from the system repos.
       ```bash
       sudo yum update -y
-      sudo yum install -y python36 python36-pip python36-devel git docker gcc gcc-c++
+      curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | sudo bash
+      sudo yum install -y python36 python36-pip python36-devel git git-lfs docker gcc gcc-c++
       sudo service docker start
       ```
 
