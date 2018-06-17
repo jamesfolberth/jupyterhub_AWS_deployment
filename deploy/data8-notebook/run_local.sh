@@ -20,7 +20,8 @@ user=$USER
 uid=`id -u $USER`
 gid=`id -g $USER`
 repo_base=`realpath \`pwd\`/../..`
-notebook_base=$repo_base/notebooks
+#notebook_base=$repo_base/notebooks
+notebook_base=$repo_base
 
 docker run -it --rm -e USER=$user -e NB_UID=$uid -e NB_GID=$gid -e HOME=$HOME \
   -p 8888:8888\
