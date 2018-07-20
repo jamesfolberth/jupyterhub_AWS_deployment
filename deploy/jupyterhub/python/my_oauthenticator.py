@@ -60,7 +60,6 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
         name = user.name
         cmd = [ arg.format(username=name) for arg in self.add_user_cmd ] + [name]
         self.log.info("Creating user: %s", ' '.join(map(pipes.quote, cmd)))
-        self.log.info("in a subclass")
         p = Popen(cmd, stdout=PIPE, stderr=STDOUT)
         p.wait()
         if p.returncode:
@@ -79,12 +78,12 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
         self.rsync_update(user.name, '/home/ec2-user/repos/jupyterhub_AWS_deployment/notebooks/', 'example_notebooks')
 
 
-    #TODO JMF 16 May 2017: this is a bit of a hack
     def set_home_permissions(self, user):
         try:
             home = '/mnt/nfs/home/{username}'.format(username=user.name)
             os.system('chown -R {username}:{username} {home}'.format(username=user.name, home=home))
-            self.log.info('Changed ownership for user {} (home={})'.format(user.name, home))
+            os.system('chmod +rx {home}'.format(home=home))
+            self.log.info('Changed ownership & permissions for user {} (home={})'.format(user.name, home))
         except Exception as e: # what's the right Exception?
             print(e)
             raise Warning('Adding user {} failed!'.format(user.name))
