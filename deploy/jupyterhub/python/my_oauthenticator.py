@@ -84,7 +84,7 @@ class LocalGoogleOAuthenticator(oauthenticator.LocalGoogleOAuthenticator):
         try:
             home = '/mnt/nfs/home/{username}'.format(username=user.name)
             os.system('chown -R {username}:{username} {home}'.format(username=user.name, home=home))
-            self.log.info('Changed permissions for user {} (home={})'.format(user.name, home))
+            self.log.info('Changed ownership for user {} (home={})'.format(user.name, home))
         except Exception as e: # what's the right Exception?
             print(e)
             raise Warning('Adding user {} failed!'.format(user.name))
