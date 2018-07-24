@@ -6,6 +6,8 @@ from pprint import pprint
 
 from my_oauthenticator import make_notebooks_readonly
 
+#TODO JMF 24 Jul 2018: we're working away from using this userlist for everything
+#         We should look at JHub's database, or the directories in HOME_BASE to get the usernames
 USERLIST='/srv/jupyterhub/userlist'
 HOME_BASE='/mnt/nfs/home/'
 
@@ -39,30 +41,37 @@ def rsync_update(username, indir, name):
         raise Warning('Failded to copy files to ')
 
 def main(args):
-    email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+    #print('Using usernames in userlist={0}'.format(USERLIST))
     
-    print('Using usernames in userlist={0}'.format(USERLIST))
-    with open(USERLIST, 'r') as f:
-        for i, line in enumerate(f):
-            if not line: continue
-            parts = line.split()
-            if not parts: continue
-            email = parts[0]
-            if not email_re.match(email):
-                raise Warning('{} is not a vaild email'.format(email))
-            
-            # matches my_oauthenticator
-            username = email.split('@')[0].lower()
-                
-            if user_exist(username):
-                rsync_update(username, args.indir, args.name)
-                ensure_home_owner(username) 
+    #email_re = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+    #usernames = [] 
+    #with open(USERLIST, 'r') as f:
+    #    for i, line in enumerate(f):
+    #        if not line: continue
+    #        parts = line.split()
+    #        if not parts: continue
+    #        email = parts[0]
+    #        if not email_re.match(email):
+    #            raise Warning('{} is not a vaild email'.format(email))
+    #        
+    #        # matches my_oauthenticator
+    #        username = email.split('@')[0].lower()
 
-            else:
-                print("User {} doesn't exist!".format(username))
-            
-            print()
-                
+    #        usernames.append(username)
+    
+    print('Getting usernames from names of top-level directories of {home_base}'.format(home_base=HOME_BASE)) 
+    usernames = [name for name in os.listdir(HOME_BASE) if os.path.isdir(os.path.join(HOME_BASE, name))]
+    
+    for username in usernames:
+        if user_exist(username):
+            rsync_update(username, args.indir, args.name)
+            ensure_home_owner(username) 
+        
+        else:
+            print("User {} doesn't exist!".format(username))
+
+        print()
+
 if __name__ == '__main__':
     #Clone the input directory into each user''s home dir
     parser = argparse.ArgumentParser()
