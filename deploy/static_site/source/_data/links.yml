@@ -1,5 +1,8 @@
 - url: "https://stemcamp.aurorak12.org/"
   title: "STEM Summer Camp Homepage"
 
+- url: "https://github.com/jamesfolberth/jupyterhub_AWS_deployment/tree/master/notebooks"
+  title: "Jupyter Notebooks GitHub Repo"
+
 - url: "https://projecteuler.net/"
   title: "Project Euler"
