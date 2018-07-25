@@ -15,3 +15,30 @@ with the specified username and id, and then run the notebook server as that
 user (using `sudo`). It also expects the user's home directory (specified by
 `$HOME`) to exist -- for example, by being mounted as a volume in the container
 when it is run.
+
+## Building
+Due to the size of things we download and upload, I like to build on AWS.
+You'll want to use a somewhat beefy instance (e.g., >= t2.large with 32 GB of space on the root partition).
+
+
+```bash
+./get_extra_data.sh
+# edit Dockerfile
+./build.sh
+```
+
+To push to hub.docker.com, you'll need to first create a DockerHub account and configure the local docker daemon to use the approprate creditials.
+Note that the docker daeomon will ask for your hub.docker.com username and password, but it looks like it doesn't store your info in `~/.docker/config.json`.
+Nevertheless, be prudent.
+
+Next, you'll tag the image you want to push, and then push that tagged image.
+For example,
+
+```bash
+docker login
+docker tag {THE_IMAGE_YOU_WANT} jamesfolberth/data8-notebook
+docker push jamesfolberth/data8-notebook
+```
+
+See [docker push](https://docs.docker.com/engine/reference/commandline/push/#extended-description) for more info.
+
